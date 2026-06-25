@@ -35,6 +35,44 @@
   --cat-REVIEW-color:   #9c36b5;  --cat-REVIEW-bg:   #f8f0fc;
 }
 
+/* ── 다크 모드 토큰 ── */
+[data-theme="dark"] {
+  --bg:          #14131a;
+  --card:        #1e1d27;
+  --border:      #2c2b38;
+  --text:        #e8e7ef;
+  --text-sub:    #9a97a8;
+  --accent:      #8064f5;
+  --accent-h:    #9277ff;
+  --accent-light:#262138;
+  --shadow:      0 1px 3px rgba(0,0,0,.4), 0 6px 24px rgba(0,0,0,.4);
+  --shadow-violet: 0 6px 20px rgba(108,76,240,.35);
+  --shadow-drop: 0 12px 32px rgba(0,0,0,.55);
+
+  --cat-FREE-color:     #91a7ff;  --cat-FREE-bg:     #1e2740;
+  --cat-QUESTION-color: #ffa94d;  --cat-QUESTION-bg: #3a2616;
+  --cat-INFO-color:     #69db7c;  --cat-INFO-bg:     #16301c;
+  --cat-REVIEW-color:   #da77f2;  --cat-REVIEW-bg:   #311b39;
+}
+:root { color-scheme: light; }
+[data-theme="dark"] { color-scheme: dark; }
+
+/* ── 테마 토글 버튼 ── */
+.theme-toggle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text-sub);
+  font-size: 1.05rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color .15s, background .15s, transform .15s;
+}
+.theme-toggle:hover { border-color: var(--accent); transform: translateY(-1px); }
+
 /* ── Reset & Base ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 15px; scroll-behavior: smooth; }
