@@ -1,13 +1,19 @@
 -- 하루 커뮤니티 게시판 DDL
 
 CREATE TABLE IF NOT EXISTS member (
-    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
-    email      VARCHAR(100) NOT NULL UNIQUE,
-    password   VARCHAR(255),
-    nickname   VARCHAR(30)  NOT NULL,
-    provider   VARCHAR(20)  NOT NULL DEFAULT 'local',
-    social_id  VARCHAR(100),
-    created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
+    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email         VARCHAR(100) NOT NULL UNIQUE,
+    password      VARCHAR(255),
+    name          VARCHAR(30),
+    phone         VARCHAR(20),
+    nickname      VARCHAR(30)  NOT NULL,
+    profile_image VARCHAR(255),
+    provider      VARCHAR(20)  NOT NULL DEFAULT 'local',
+    social_id     VARCHAR(100),
+    noti_comment  TINYINT(1)   NOT NULL DEFAULT 1,
+    noti_like     TINYINT(1)   NOT NULL DEFAULT 1,
+    noti_notice   TINYINT(1)   NOT NULL DEFAULT 1,
+    created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS post (

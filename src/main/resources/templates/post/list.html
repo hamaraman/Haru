@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/header :: head('게시글')}"></th:block>
+</head>
+<body>
+<th:block th:replace="~{fragments/header :: topbar}"></th:block>
+
+<div class="layout">
+  <th:block th:replace="~{fragments/header :: sidebar(${category == '' or category == null ? (sort == 'popular' ? 'popular' : (sort == 'views' ? 'list' : 'latest')) : 'cat-' + category})}"></th:block>
+
+  <main class="main">
+
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+    <div th:if="${error}"   class="alert alert-danger"  th:text="${error}"></div>
+
+    <!-- 헤더 + 정렬 탭 -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title"
+            th:text="${categoryLabel != null} ? ${categoryLabel} + ' 게시판' : '전체 글'">전체 글</h1>
+        <p class="page-sub" th:text="'총 ' + ${total} + '개의 이야기'">총 0개</p>
+      </div>
+      <div class="sort-tabs">
+        <a th:href="@{/posts(keyword=${keyword},searchType=${searchType},category=${category},sort='latest')}"
+           class="sort-tab" th:classappend="${sort == 'latest'} ? 'active'">최신순</a>
+        <a th:href="@{/posts(keyword=${keyword},searchType=${searchType},category=${category},sort='popular')}"
+           class="sort-tab" th:classappend="${sort == 'popular'} ? 'active'">인기순</a>
+        <a th:href="@{/posts(keyword=${keyword},searchType=${searchType},category=${category},sort='views')}"
+           class="sort-tab" th:classappend="${sort == 'views'} ? 'active'">조회순</a>
+      </div>
+    </div>
+
+    <!-- 검색바 -->
+    <form th:action="@{/posts}" method="get" class="search-bar">
+      <input type="hidden" name="category" th:value="${category}">
+      <input type="hidden" name="sort" th:value="${sort}">
+      <select name="searchType" class="search-select">
+        <option value="all"    th:selected="${searchType=='all'}">제목+작성자</option>
+        <option value="title"  th:selected="${searchType=='title'}">제목</option>
+        <option value="author" th:selected="${searchType=='author'}">작성자</option>
+      </select>
+      <input type="text" name="keyword" class="search-input"
+             placeholder="검색어를 입력하세요" th:value="${keyword}">
+      <button type="submit" class="btn btn-primary">검색</button>
+      <a th:href="@{/posts(category=${category},sort=${sort})}" class="btn btn-ghost">초기화</a>
+    </form>
+
+    <!-- 목록 -->
+    <div class="feed-card" th:if="${!#lists.isEmpty(posts)}">
+      <div class="post-list">
+        <div th:each="post : ${posts}" class="post-item" th:data-href="@{/post/{id}(id=${post.id})}">
+          <span th:class="'chip chip-' + ${post.category}" th:text="${post.categoryLabel}">카테고리</span>
+          <span class="post-title" th:text="${post.title}">제목</span>
+          <div class="post-meta">
+            <span class="ico like">♥ <span th:text="${post.likeCount}">0</span></span>
+            <span class="ico">💬 <span th:text="${post.commentCount}">0</span></span>
+            <span class="ico">👁 <span th:text="${post.viewCount}">0</span></span>
+            <span class="ico" th:text="${post.authorNickname}">작성자</span>
+            <span class="ico" th:text="${#temporals.format(post.createdAt,'MM.dd HH:mm')}">날짜</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(posts)}" class="empty">
+      검색 결과가 없습니다. 다른 검색어를 시도해보세요.
+    </div>
+
+    <!-- 페이지네이션 -->
+    <nav class="pagination" th:if="${totalPages > 1}">
+      <a th:href="@{/posts(page=${currentPage-1},keyword=${keyword},searchType=${searchType},category=${category},sort=${sort})}"
+         class="page-btn" th:classappend="${currentPage==1} ? 'disabled'">‹</a>
+      <a th:each="i : ${#numbers.sequence(1, totalPages)}"
+         th:href="@{/posts(page=${i},keyword=${keyword},searchType=${searchType},category=${category},sort=${sort})}"
+         th:text="${i}" class="page-btn" th:classappend="${i==currentPage} ? 'active'">1</a>
+      <a th:href="@{/posts(page=${currentPage+1},keyword=${keyword},searchType=${searchType},category=${category},sort=${sort})}"
+         class="page-btn" th:classappend="${currentPage==totalPages} ? 'disabled'">›</a>
+    </nav>
+
+  </main>
+</div>
+
+<th:block th:replace="~{fragments/header :: footer}"></th:block>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

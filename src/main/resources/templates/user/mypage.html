@@ -4,26 +4,23 @@
   <th:block th:replace="~{fragments/header :: head('마이페이지')}"></th:block>
 </head>
 <body>
-<th:block th:replace="~{fragments/header :: navbar}"></th:block>
+<th:block th:replace="~{fragments/header :: topbar}"></th:block>
 
-<main class="page-main">
-  <div class="container" style="max-width:800px">
+<div class="layout">
+  <th:block th:replace="~{fragments/header :: sidebar('mypage')}"></th:block>
+
+  <main class="main">
 
     <!-- 프로필 카드 -->
     <div class="profile-card">
       <span class="avatar avatar-lg"
             th:data-avatar="${user.nickname}"
-            th:text="${#strings.substring(user.nickname,0,1)}"></span>
+            th:style="${user.profileImage != null} ? 'background-image:url(' + ${user.profileImage} + ')' : ''"
+            th:text="${user.profileImage == null} ? ${#strings.substring(user.nickname,0,1)} : ''"></span>
       <div class="profile-info">
-        <div class="profile-name" th:text="${user.nickname}"></div>
-        <div class="profile-email">
-          <span th:if="${user.name != null and !#strings.isEmpty(user.name)}"
-                th:text="${user.name} + ' · '"
-                style="color:var(--text);font-weight:600;"></span>
-          <span th:text="${user.email}"></span>
-        </div>
+        <div class="profile-name" th:text="${user.nickname}">닉네임</div>
+        <div class="profile-email" th:text="${user.email}">이메일</div>
 
-        <!-- 통계 -->
         <div class="stats-row">
           <div class="stat-item">
             <div class="stat-num" th:text="${stats.postCount}">0</div>
@@ -40,53 +37,47 @@
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
-        <a th:href="@{/user/profile}" class="btn btn-primary btn-sm">정보 수정</a>
+        <a th:href="@{/user/settings}" class="btn btn-primary btn-sm">설정</a>
         <a th:href="@{/user/logout}"  class="btn btn-ghost btn-sm">로그아웃</a>
       </div>
     </div>
 
     <!-- 내가 작성한 글 -->
     <div class="page-header">
-      <h2 class="page-title" style="font-size:1.1rem;">내가 작성한 글</h2>
+      <h2 class="page-title" style="font-size:1.15rem;">내가 작성한 글</h2>
     </div>
 
-    <div class="post-list">
-      <div th:each="post : ${posts.content}"
-           class="post-item"
-           th:data-href="@{/post/{id}(id=${post.id})}">
-        <span th:class="'chip chip-' + ${post.category.name()}"
-              th:text="${post.category.label}">카테고리</span>
-        <span class="post-title" th:text="${post.title}">제목</span>
-        <div class="post-meta">
-          <span>♥ <span th:text="${post.likeCount}">0</span></span>
-          <span>👁 <span th:text="${post.viewCount}">0</span></span>
-          <span th:text="${#temporals.format(post.createdAt,'MM.dd')}">날짜</span>
+    <div class="feed-card" th:if="${!posts.content.isEmpty()}">
+      <div class="post-list">
+        <div th:each="post : ${posts.content}" class="post-item" th:data-href="@{/post/{id}(id=${post.id})}">
+          <span th:class="'chip chip-' + ${post.category.name()}" th:text="${post.category.label}">카테고리</span>
+          <span class="post-title" th:text="${post.title}">제목</span>
+          <div class="post-meta">
+            <span class="ico like">♥ <span th:text="${post.likeCount}">0</span></span>
+            <span class="ico">👁 <span th:text="${post.viewCount}">0</span></span>
+            <span class="ico" th:text="${#temporals.format(post.createdAt,'MM.dd')}">날짜</span>
+          </div>
         </div>
       </div>
-
-      <div th:if="${posts.content.isEmpty()}" class="empty">
-        아직 작성한 글이 없습니다.
-      </div>
     </div>
+
+    <div th:if="${posts.content.isEmpty()}" class="empty">아직 작성한 글이 없습니다.</div>
 
     <!-- 페이지네이션 -->
     <nav class="pagination" th:if="${posts.totalPages > 1}">
-      <a th:href="@{/user/mypage(page=${currentPage-1})}"
-         class="page-btn"
+      <a th:href="@{/user/mypage(page=${currentPage-1})}" class="page-btn"
          th:classappend="${currentPage==1} ? 'disabled'">‹</a>
       <a th:each="i : ${#numbers.sequence(1, posts.totalPages)}"
-         th:href="@{/user/mypage(page=${i})}"
-         th:text="${i}"
-         class="page-btn"
-         th:classappend="${i==currentPage} ? 'active'"></a>
-      <a th:href="@{/user/mypage(page=${currentPage+1})}"
-         class="page-btn"
+         th:href="@{/user/mypage(page=${i})}" th:text="${i}" class="page-btn"
+         th:classappend="${i==currentPage} ? 'active'">1</a>
+      <a th:href="@{/user/mypage(page=${currentPage+1})}" class="page-btn"
          th:classappend="${currentPage==posts.totalPages} ? 'disabled'">›</a>
     </nav>
 
-  </div>
-</main>
+  </main>
+</div>
 
+<th:block th:replace="~{fragments/header :: footer}"></th:block>
 <script th:src="@{/js/main.js}"></script>
 </body>
 </html>

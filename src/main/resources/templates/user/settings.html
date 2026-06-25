@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/header :: head('설정')}"></th:block>
+</head>
+<body>
+<th:block th:replace="~{fragments/header :: topbar}"></th:block>
+
+<div class="layout">
+  <th:block th:replace="~{fragments/header :: sidebar('')}"></th:block>
+
+  <main class="main" style="max-width:680px;">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">설정</h1>
+        <p class="page-sub">프로필과 알림을 관리하세요</p>
+      </div>
+      <a th:href="@{/user/mypage}" class="btn btn-ghost btn-sm">← 마이페이지</a>
+    </div>
+
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+    <div th:if="${error}"   class="alert alert-danger"  th:text="${error}"></div>
+
+    <form th:action="@{/user/settings}" method="post" id="settingsForm">
+      <input type="hidden" name="profileImage" id="profileImage" th:value="${user.profileImage}">
+
+      <!-- 프로필 수정 -->
+      <div class="card" style="margin-bottom:18px;">
+        <div class="card-body">
+          <p class="section-label">프로필 수정</p>
+
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:22px;">
+            <span class="avatar avatar-lg" id="avatarPreview"
+                  th:data-avatar="${user.nickname}"
+                  th:style="${user.profileImage != null} ? 'background-image:url(' + ${user.profileImage} + ')' : ''"
+                  th:text="${user.profileImage == null} ? ${#strings.substring(user.nickname,0,1)} : ''"></span>
+            <div>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('photoInput').click()">사진 변경</button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="removePhoto()">기본 이미지</button>
+              <input type="file" id="photoInput" accept="image/*" style="display:none">
+              <span class="provider-badge"
+                    th:classappend="${user.provider == 'naver'} ? 'badge-naver' : 'badge-local'"
+                    th:text="${user.provider == 'naver'} ? 'N 네이버 로그인' : '✉ 이메일 로그인'"
+                    style="display:block;width:fit-content;margin-top:8px;"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="nickname" class="form-label">닉네임 <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="nickname" name="nickname" class="form-input"
+                   th:value="${user.nickname}" required maxlength="30">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="email" class="form-label">이메일</label>
+            <input type="email" id="email" name="email" class="form-input" th:value="${user.email}">
+          </div>
+        </div>
+      </div>
+
+      <!-- 알림 설정 -->
+      <div class="card" style="margin-bottom:18px;">
+        <div class="card-body">
+          <p class="section-label">알림 설정</p>
+          <div class="toggle-row">
+            <div><div class="tl">댓글 알림</div><div class="ts">내 글에 댓글이 달리면 알려드려요</div></div>
+            <label class="switch">
+              <input type="checkbox" name="notiComment" th:checked="${user.notiComment}">
+              <span class="track"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div><div class="tl">좋아요 알림</div><div class="ts">내 글이 좋아요를 받으면 알려드려요</div></div>
+            <label class="switch">
+              <input type="checkbox" name="notiLike" th:checked="${user.notiLike}">
+              <span class="track"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div><div class="tl">공지 알림</div><div class="ts">새로운 공지사항을 알려드려요</div></div>
+            <label class="switch">
+              <input type="checkbox" name="notiNotice" th:checked="${user.notiNotice}">
+              <span class="track"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 비밀번호 변경 (이메일 로그인 전용) -->
+      <div class="card" style="margin-bottom:18px;" th:if="${user.provider != 'naver'}">
+        <div class="card-body">
+          <p class="section-label">비밀번호 변경</p>
+          <p class="form-hint" style="margin-bottom:16px;">변경하지 않으려면 비워두세요.</p>
+          <div class="form-group">
+            <label for="currentPassword" class="form-label">현재 비밀번호</label>
+            <input type="password" id="currentPassword" name="currentPassword" class="form-input" autocomplete="current-password">
+          </div>
+          <div class="form-group">
+            <label for="newPassword" class="form-label">새 비밀번호</label>
+            <input type="password" id="newPassword" name="newPassword" class="form-input" autocomplete="new-password">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="newPasswordConfirm" class="form-label">새 비밀번호 확인</label>
+            <input type="password" id="newPasswordConfirm" name="newPasswordConfirm" class="form-input" autocomplete="new-password">
+          </div>
+        </div>
+      </div>
+
+      <!-- 계정 정보 -->
+      <div class="card" style="margin-bottom:18px;">
+        <div class="card-body">
+          <p class="section-label">계정 정보</p>
+          <div class="info-row">
+            <span class="info-key">가입일</span>
+            <span class="info-val" th:text="${#temporals.format(user.createdAt,'yyyy년 MM월 dd일')}">-</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">로그인 방식</span>
+            <span class="info-val" th:text="${user.provider == 'naver'} ? '네이버 소셜 로그인' : '이메일 로그인'">-</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;">
+        <a th:href="@{/user/mypage}" class="btn btn-ghost">취소</a>
+        <button type="submit" class="btn btn-primary" style="padding:10px 28px;">저장하기</button>
+      </div>
+    </form>
+  </main>
+</div>
+
+<th:block th:replace="~{fragments/header :: footer}"></th:block>
+<script th:src="@{/js/main.js}"></script>
+<script th:inline="javascript">
+  const nickname = /*[[${user.nickname}]]*/ '';
+  const photoInput = document.getElementById('photoInput');
+  const avatarPreview = document.getElementById('avatarPreview');
+  const profileImageInput = document.getElementById('profileImage');
+
+  photoInput.addEventListener('change', async () => {
+    const file = photoInput.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { alert('이미지 파일만 업로드 가능합니다.'); return; }
+    const fd = new FormData();
+    fd.append('file', file);
+    try {
+      const res = await fetch('/upload/image', { method: 'POST', body: fd });
+      if (res.status === 401) { alert('로그인이 필요합니다.'); return; }
+      const data = await res.json();
+      if (data.url) {
+        profileImageInput.value = data.url;
+        avatarPreview.style.backgroundImage = `url(${data.url})`;
+        avatarPreview.textContent = '';
+      } else {
+        alert('업로드 실패: ' + (data.error || '알 수 없는 오류'));
+      }
+    } catch (e) { alert('업로드 중 오류가 발생했습니다.'); }
+  });
+
+  function removePhoto() {
+    profileImageInput.value = '';
+    avatarPreview.style.backgroundImage = '';
+    avatarPreview.textContent = (nickname || '').charAt(0);
+  }
+</script>
+</body>
+</html>

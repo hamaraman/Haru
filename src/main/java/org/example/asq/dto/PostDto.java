@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.asq.domain.Category;
+import org.jsoup.Jsoup;
 
 import java.time.LocalDateTime;
 
@@ -15,6 +16,7 @@ public class PostDto {
     private String categoryLabel;
     private String title;
     private String content;
+    private String profileImage;
     private int viewCount;
     private int likeCount;
     private int commentCount;
@@ -24,10 +26,18 @@ public class PostDto {
 
     public String getCategoryLabel() {
         if (category == null) return "";
-        try {
-            return Category.valueOf(category).getLabel();
-        } catch (IllegalArgumentException e) {
-            return category;
-        }
+        return Category.labelOf(category);
+    }
+
+    public String getCategoryIcon() {
+        if (category == null) return "•";
+        return Category.iconOf(category);
+    }
+
+    /** 대시보드 카드용 본문 요약(HTML 태그 제거 후 잘라내기) */
+    public String getSummary() {
+        if (content == null || content.isBlank()) return "";
+        String text = Jsoup.parse(content).text().trim();
+        return text.length() > 90 ? text.substring(0, 90) + "…" : text;
     }
 }

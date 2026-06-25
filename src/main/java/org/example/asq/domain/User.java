@@ -32,11 +32,23 @@ public class User {
     @Column(nullable = false, length = 30)
     private String nickname;
 
+    @Column(name = "profile_image", length = 255)
+    private String profileImage;
+
     @Column(nullable = false, length = 20)
     private String provider = "local";
 
     @Column(name = "social_id", length = 100)
     private String socialId;
+
+    @Column(name = "noti_comment", nullable = false)
+    private boolean notiComment = true;
+
+    @Column(name = "noti_like", nullable = false)
+    private boolean notiLike = true;
+
+    @Column(name = "noti_notice", nullable = false)
+    private boolean notiNotice = true;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

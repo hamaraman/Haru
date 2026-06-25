@@ -1,95 +1,84 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <th:block th:replace="~{fragments/header :: head('게시글 목록')}"></th:block>
+  <th:block th:replace="~{fragments/header :: head('홈')}"></th:block>
 </head>
 <body>
-<th:block th:replace="~{fragments/header :: navbar}"></th:block>
+<th:block th:replace="~{fragments/header :: topbar}"></th:block>
 
-<main class="page-main">
-  <div class="container">
+<div class="layout has-widgets">
+  <th:block th:replace="~{fragments/header :: sidebar('home')}"></th:block>
 
-    <!-- 알림 -->
-    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
-    <div th:if="${error}"   class="alert alert-danger"  th:text="${error}"></div>
+  <main class="main">
 
-    <!-- 페이지 헤더 -->
-    <div class="page-header">
-      <div>
-        <h1 class="page-title">전체 글</h1>
-        <p class="page-sub" th:text="'총 ' + ${total} + '개의 이야기'"></p>
-      </div>
+    <!-- 히어로 배너 -->
+    <section class="hero">
+      <div class="blob"></div>
+      <span class="emoji">☕</span>
+      <h1>매일 들르는 이야기,<br>하루에서 함께 나눠요</h1>
+      <p>자유롭게 묻고, 답하고, 정보를 공유하는 공간. 오늘 하루는 어떤 이야기로 채울까요?</p>
+      <a th:href="@{/posts}" class="cta">게시판 둘러보기 →</a>
+    </section>
+
+    <!-- 인기 게시글 -->
+    <div class="section-head">
+      <h2>🔥 인기 게시글</h2>
+      <a th:href="@{/posts(sort='popular')}">더보기</a>
     </div>
 
-    <!-- 카테고리 탭 -->
-    <div class="cat-tabs">
-      <a th:href="@{/(keyword=${keyword},searchType=${searchType},category='')}"
-         th:classappend="${category == '' or category == null} ? 'active'"
-         class="cat-tab">전체</a>
-      <a th:each="cat : ${categories}"
-         th:href="@{/(keyword=${keyword},searchType=${searchType},category=${cat.name()})}"
-         th:classappend="${category == cat.name()} ? 'active'"
-         th:text="${cat.label}"
-         class="cat-tab">카테고리</a>
-    </div>
-
-    <!-- 검색 -->
-    <form th:action="@{/}" method="get" class="search-bar">
-      <input type="hidden" name="category" th:value="${category}">
-      <select name="searchType" class="search-select">
-        <option value="all"    th:selected="${searchType=='all'}">제목+작성자</option>
-        <option value="title"  th:selected="${searchType=='title'}">제목</option>
-        <option value="author" th:selected="${searchType=='author'}">작성자</option>
-      </select>
-      <input type="text" name="keyword" class="search-input"
-             placeholder="검색어를 입력하세요" th:value="${keyword}">
-      <button type="submit" class="btn btn-primary">검색</button>
-      <a th:href="@{/(category=${category})}" class="btn btn-ghost">초기화</a>
-    </form>
-
-    <!-- 목록 -->
-    <div class="post-list">
-      <div th:each="post : ${posts}"
-           class="post-item"
-           th:data-href="@{/post/{id}(id=${post.id})}">
-        <span th:class="'chip chip-' + ${post.category}"
-              th:text="${post.categoryLabel}">카테고리</span>
-        <span class="post-title" th:text="${post.title}">제목</span>
-        <div class="post-meta">
-          <span class="ico" title="댓글">💬 <span th:text="${post.commentCount}">0</span></span>
-          <span class="ico" title="좋아요">♥ <span th:text="${post.likeCount}">0</span></span>
-          <span class="ico" title="조회">👁 <span th:text="${post.viewCount}">0</span></span>
-          <span th:text="${post.authorNickname}">작성자</span>
-          <span th:text="${#temporals.format(post.createdAt,'MM.dd HH:mm')}">날짜</span>
+    <div class="pop-grid" th:if="${!#lists.isEmpty(popularPosts)}">
+      <div th:each="p : ${popularPosts}" class="pop-card" th:data-href="@{/post/{id}(id=${p.id})}">
+        <div th:class="'pop-thumb t-' + ${p.category}" th:text="${p.categoryIcon}">💬</div>
+        <div class="pop-body">
+          <span th:class="'chip chip-' + ${p.category}" th:text="${p.categoryLabel}"
+                style="align-self:flex-start">카테고리</span>
+          <div class="pop-title" th:text="${p.title}">제목</div>
+          <div class="pop-sum" th:text="${p.summary}">요약</div>
+          <div class="pop-foot">
+            <span class="author">
+              <span class="avatar avatar-sm"
+                    th:data-avatar="${p.authorNickname}"
+                    th:style="${p.profileImage != null} ? 'background-image:url(' + ${p.profileImage} + ')' : ''"
+                    th:text="${p.profileImage == null} ? ${#strings.substring(p.authorNickname,0,1)} : ''"></span>
+              <span th:text="${p.authorNickname}">작성자</span>
+            </span>
+            <span class="stats">
+              <span style="color:var(--danger)">♥ <span th:text="${p.likeCount}">0</span></span>
+              <span>💬 <span th:text="${p.commentCount}">0</span></span>
+            </span>
+          </div>
         </div>
       </div>
+    </div>
+    <div th:if="${#lists.isEmpty(popularPosts)}" class="empty">아직 게시글이 없습니다. 첫 이야기를 남겨보세요!</div>
 
-      <div th:if="${#lists.isEmpty(posts)}" class="empty">
-        아직 게시글이 없습니다. 첫 이야기를 남겨보세요!
+    <!-- 최신 게시글 -->
+    <div class="section-head">
+      <h2>🕒 최신 게시글</h2>
+      <a th:href="@{/posts(sort='latest')}">더보기</a>
+    </div>
+
+    <div class="feed-card" th:if="${!#lists.isEmpty(latestPosts)}">
+      <div class="post-list">
+        <div th:each="post : ${latestPosts}" class="post-item" th:data-href="@{/post/{id}(id=${post.id})}">
+          <span th:class="'chip chip-' + ${post.category}" th:text="${post.categoryLabel}">카테고리</span>
+          <span class="post-title" th:text="${post.title}">제목</span>
+          <div class="post-meta">
+            <span class="ico like">♥ <span th:text="${post.likeCount}">0</span></span>
+            <span class="ico">💬 <span th:text="${post.commentCount}">0</span></span>
+            <span class="ico" th:text="${post.authorNickname}">작성자</span>
+            <span class="ico" th:text="${#temporals.format(post.createdAt,'MM.dd')}">날짜</span>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- 페이지네이션 -->
-    <nav class="pagination" th:if="${totalPages > 1}">
-      <a th:href="@{/(page=${currentPage-1},keyword=${keyword},searchType=${searchType},category=${category})}"
-         class="page-btn"
-         th:classappend="${currentPage==1} ? 'disabled'"
-         th:aria-disabled="${currentPage==1}">‹</a>
+  </main>
 
-      <a th:each="i : ${#numbers.sequence(1, totalPages)}"
-         th:href="@{/(page=${i},keyword=${keyword},searchType=${searchType},category=${category})}"
-         th:text="${i}"
-         class="page-btn"
-         th:classappend="${i==currentPage} ? 'active'"></a>
+  <th:block th:replace="~{fragments/header :: widgets}"></th:block>
+</div>
 
-      <a th:href="@{/(page=${currentPage+1},keyword=${keyword},searchType=${searchType},category=${category})}"
-         class="page-btn"
-         th:classappend="${currentPage==totalPages} ? 'disabled'">›</a>
-    </nav>
-
-  </div>
-</main>
-
+<th:block th:replace="~{fragments/header :: footer}"></th:block>
 <script th:src="@{/js/main.js}"></script>
 </body>
 </html>

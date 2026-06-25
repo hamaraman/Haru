@@ -90,6 +90,57 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    /** 설정 화면: 프로필(닉네임·이메일·사진) + 알림 토글 + 선택적 비밀번호 변경 */
+    @Transactional
+    public User updateSettings(Long userId, UserUpdateDto dto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        // 닉네임 중복 체크 (자신 제외)
+        if (dto.getNickname() != null && !user.getNickname().equals(dto.getNickname())) {
+            if (userRepository.existsByNickname(dto.getNickname())) {
+                throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+            }
+            user.setNickname(dto.getNickname());
+        }
+
+        // 이메일 중복 체크 (자신 제외)
+        if (dto.getEmail() != null && !dto.getEmail().isBlank()
+                && !user.getEmail().equals(dto.getEmail())) {
+            if (userRepository.existsByEmail(dto.getEmail())) {
+                throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+            }
+            user.setEmail(dto.getEmail());
+        }
+
+        // 프로필 사진
+        if (dto.getProfileImage() != null) {
+            user.setProfileImage(dto.getProfileImage().isBlank() ? null : dto.getProfileImage());
+        }
+
+        // 비밀번호 변경 (이메일 로그인 계정만, 입력 시에만)
+        if (dto.getNewPassword() != null && !dto.getNewPassword().isBlank()) {
+            if (!"local".equals(user.getProvider())) {
+                throw new IllegalArgumentException("소셜 로그인 계정은 비밀번호를 변경할 수 없습니다.");
+            }
+            if (dto.getCurrentPassword() == null
+                    || !passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+                throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+            }
+            if (!dto.getNewPassword().equals(dto.getNewPasswordConfirm())) {
+                throw new IllegalArgumentException("새 비밀번호와 확인이 일치하지 않습니다.");
+            }
+            user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        }
+
+        // 알림 설정
+        user.setNotiComment(dto.isNotiComment());
+        user.setNotiLike(dto.isNotiLike());
+        user.setNotiNotice(dto.isNotiNotice());
+
+        return userRepository.save(user);
+    }
+
     @Transactional(readOnly = true)
     public MemberStatsDto getStats(Long userId) {
         long postCount    = postRepository.countByUserId(userId);

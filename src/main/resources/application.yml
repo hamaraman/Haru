@@ -38,8 +38,13 @@ spring:
 
   servlet:
     multipart:
-      max-file-size: 200MB
-      max-request-size: 200MB
+      max-file-size: 1GB
+      max-request-size: 1GB
+
+server:
+  tomcat:
+    # 한도 초과 업로드도 끝까지 읽어 깔끔한 에러 응답을 보낸다 (커넥션 리셋 방지)
+    max-swallow-size: -1
 
 app:
   upload-dir: /home/ubuntu/uploads

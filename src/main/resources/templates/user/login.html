@@ -4,13 +4,13 @@
   <th:block th:replace="~{fragments/header :: head('로그인')}"></th:block>
 </head>
 <body>
-<th:block th:replace="~{fragments/header :: navbar}"></th:block>
+<th:block th:replace="~{fragments/header :: topbar}"></th:block>
 
 <div class="auth-wrap">
   <div class="auth-card">
 
     <div style="text-align:center;margin-bottom:24px;">
-      <span class="logo-mark" style="margin:0 auto 10px;display:grid;width:44px;height:44px;font-size:1.3rem;">하</span>
+      <span class="logo-mark" style="margin:0 auto 12px;width:48px;height:48px;font-size:1.4rem;">하</span>
       <h1 class="auth-title">다시 돌아오셨군요</h1>
       <p class="auth-sub">하루에 로그인하세요</p>
     </div>
@@ -48,6 +48,7 @@
   </div>
 </div>
 
+<th:block th:replace="~{fragments/header :: footer}"></th:block>
 <script th:src="@{/js/main.js}"></script>
 </body>
 </html>
