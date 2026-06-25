@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/header :: head('회원가입')}"></th:block>
+</head>
+<body>
+<th:block th:replace="~{fragments/header :: navbar}"></th:block>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+
+    <div style="text-align:center;margin-bottom:24px;">
+      <span class="logo-mark" style="margin:0 auto 10px;display:grid;width:44px;height:44px;font-size:1.3rem;">하</span>
+      <h1 class="auth-title">하루에 오신 것을 환영해요</h1>
+      <p class="auth-sub">매일 들르는 이야기, 지금 시작하세요</p>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <form th:action="@{/user/register}" method="post">
+      <div class="form-group">
+        <label for="name" class="form-label">실명</label>
+        <input type="text" id="name" name="name" class="form-input"
+               placeholder="홍길동" autofocus maxlength="30">
+        <p style="font-size:.75rem;color:var(--text-sub);margin-top:4px;">
+          실명은 다른 사용자에게 공개되지 않습니다.
+        </p>
+      </div>
+      <div class="form-group">
+        <label for="phone" class="form-label">휴대폰 번호</label>
+        <input type="tel" id="phone" name="phone" class="form-input"
+               placeholder="010-0000-0000" maxlength="20"
+               oninput="this.value=this.value.replace(/[^0-9-]/g,'')">
+      </div>
+      <div class="form-group">
+        <label for="nickname" class="form-label">닉네임 <span style="color:var(--danger)">*</span></label>
+        <input type="text" id="nickname" name="nickname" class="form-input"
+               placeholder="사용할 닉네임을 입력하세요" required maxlength="30">
+      </div>
+      <div class="form-group">
+        <label for="email" class="form-label">이메일 <span style="color:var(--danger)">*</span></label>
+        <input type="email" id="email" name="email" class="form-input"
+               placeholder="example@email.com" required>
+      </div>
+      <div class="form-group">
+        <label for="password" class="form-label">비밀번호 <span style="color:var(--danger)">*</span></label>
+        <input type="password" id="password" name="password" class="form-input"
+               placeholder="비밀번호 (8자 이상 권장)" required>
+      </div>
+      <button type="submit" class="btn btn-primary"
+              style="width:100%;justify-content:center;padding:12px;">가입하기</button>
+    </form>
+
+    <div class="divider">또는</div>
+
+    <a th:href="@{/oauth2/authorization/naver}" class="btn btn-naver">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="margin-right:4px">
+        <path d="M16.273 12.845 7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z"/>
+      </svg>
+      네이버로 시작하기
+    </a>
+
+    <p class="auth-footer">
+      이미 계정이 있으신가요? <a th:href="@{/user/login}">로그인</a>
+    </p>
+  </div>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>
