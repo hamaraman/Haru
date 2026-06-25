@@ -116,9 +116,9 @@ public class PostService {
     }
 
     public Map<String, Object> searchPosts(String keyword, String searchType,
-                                           String category, int page) {
+                                           String category, String sort, int page) {
         int offset = (page - 1) * PAGE_SIZE;
-        List<PostDto> posts = postMapper.searchPosts(keyword, searchType, category, offset, PAGE_SIZE);
+        List<PostDto> posts = postMapper.searchPosts(keyword, searchType, category, sort, offset, PAGE_SIZE);
         int total = postMapper.countSearchPosts(keyword, searchType, category);
         int totalPages = total == 0 ? 1 : (int) Math.ceil((double) total / PAGE_SIZE);
 
@@ -128,6 +128,25 @@ public class PostService {
         result.put("totalPages", totalPages);
         result.put("currentPage", page);
         return result;
+    }
+
+    /** 좌측 내비 카테고리 배지용: 카테고리명 → 글 수 */
+    public Map<String, Integer> categoryCounts() {
+        Map<String, Integer> counts = new HashMap<>();
+        int total = 0;
+        for (Map<String, Object> row : postMapper.countByCategory()) {
+            String cat = String.valueOf(row.get("category"));
+            int cnt = ((Number) row.get("cnt")).intValue();
+            counts.put(cat, cnt);
+            total += cnt;
+        }
+        counts.put("ALL", total);
+        return counts;
+    }
+
+    /** 대시보드: 인기/최신 게시글 */
+    public List<PostDto> topPosts(String sort, int limit) {
+        return postMapper.findTopPosts(sort, limit);
     }
 
     @Transactional(readOnly = true)

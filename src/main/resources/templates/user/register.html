@@ -4,13 +4,13 @@
   <th:block th:replace="~{fragments/header :: head('회원가입')}"></th:block>
 </head>
 <body>
-<th:block th:replace="~{fragments/header :: navbar}"></th:block>
+<th:block th:replace="~{fragments/header :: topbar}"></th:block>
 
 <div class="auth-wrap">
   <div class="auth-card">
 
     <div style="text-align:center;margin-bottom:24px;">
-      <span class="logo-mark" style="margin:0 auto 10px;display:grid;width:44px;height:44px;font-size:1.3rem;">하</span>
+      <span class="logo-mark" style="margin:0 auto 12px;width:48px;height:48px;font-size:1.4rem;">하</span>
       <h1 class="auth-title">하루에 오신 것을 환영해요</h1>
       <p class="auth-sub">매일 들르는 이야기, 지금 시작하세요</p>
     </div>
@@ -19,23 +19,9 @@
 
     <form th:action="@{/user/register}" method="post">
       <div class="form-group">
-        <label for="name" class="form-label">실명</label>
-        <input type="text" id="name" name="name" class="form-input"
-               placeholder="홍길동" autofocus maxlength="30">
-        <p style="font-size:.75rem;color:var(--text-sub);margin-top:4px;">
-          실명은 다른 사용자에게 공개되지 않습니다.
-        </p>
-      </div>
-      <div class="form-group">
-        <label for="phone" class="form-label">휴대폰 번호</label>
-        <input type="tel" id="phone" name="phone" class="form-input"
-               placeholder="010-0000-0000" maxlength="20"
-               oninput="this.value=this.value.replace(/[^0-9-]/g,'')">
-      </div>
-      <div class="form-group">
         <label for="nickname" class="form-label">닉네임 <span style="color:var(--danger)">*</span></label>
         <input type="text" id="nickname" name="nickname" class="form-input"
-               placeholder="사용할 닉네임을 입력하세요" required maxlength="30">
+               placeholder="사용할 닉네임을 입력하세요" required maxlength="30" autofocus>
       </div>
       <div class="form-group">
         <label for="email" class="form-label">이메일 <span style="color:var(--danger)">*</span></label>
@@ -66,6 +52,7 @@
   </div>
 </div>
 
+<th:block th:replace="~{fragments/header :: footer}"></th:block>
 <script th:src="@{/js/main.js}"></script>
 </body>
 </html>

@@ -67,30 +67,36 @@ public class UserController {
         return "redirect:/";
     }
 
-    @GetMapping("/profile")
-    public String profileForm(HttpSession session, Model model) {
+    @GetMapping("/settings")
+    public String settingsForm(HttpSession session, Model model) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) return "redirect:/user/login";
 
         User user = userService.findById(loginUser.getId());
         model.addAttribute("user", user);
         model.addAttribute("updateDto", new UserUpdateDto());
-        return "user/profile";
+        return "user/settings";
     }
 
-    @PostMapping("/profile")
-    public String updateProfile(@ModelAttribute UserUpdateDto updateDto,
-                                HttpSession session, RedirectAttributes attrs) {
+    @PostMapping("/settings")
+    public String updateSettings(@ModelAttribute UserUpdateDto updateDto,
+                                 HttpSession session, RedirectAttributes attrs) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) return "redirect:/user/login";
         try {
-            User updated = userService.updateProfile(loginUser.getId(), updateDto);
+            User updated = userService.updateSettings(loginUser.getId(), updateDto);
             session.setAttribute("loginUser", updated);
-            attrs.addFlashAttribute("message", "회원정보가 수정되었습니다.");
+            attrs.addFlashAttribute("message", "설정이 저장되었습니다.");
         } catch (IllegalArgumentException e) {
             attrs.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/user/profile";
+        return "redirect:/user/settings";
+    }
+
+    /** 이전 경로 호환: /user/profile → /user/settings */
+    @GetMapping("/profile")
+    public String profileRedirect() {
+        return "redirect:/user/settings";
     }
 
     @GetMapping("/mypage")

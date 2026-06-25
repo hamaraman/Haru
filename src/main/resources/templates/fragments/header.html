@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<!-- HEAD fragment -->
+<!-- ═══════════ HEAD ═══════════ -->
 <th:block th:fragment="head(title)">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,28 +9,135 @@
   <link rel="stylesheet" th:href="@{/css/style.css}">
 </th:block>
 
-<!-- NAV fragment -->
-<header th:fragment="navbar" class="site-header">
-  <div class="container inner">
+<!-- ═══════════ 상단 바 ═══════════ -->
+<header th:fragment="topbar" class="topbar">
+  <div class="topbar-inner">
     <a th:href="@{/}" class="logo">
       <span class="logo-mark">하</span>
       하루
     </a>
-    <nav class="nav-actions">
+
+    <!-- 중앙 검색바 -->
+    <form th:action="@{/posts}" method="get" class="topbar-search">
+      <span class="ico">🔍</span>
+      <input type="text" name="keyword" placeholder="하루에서 이야기 검색" autocomplete="off">
+    </form>
+
+    <div class="topbar-actions">
+      <!-- 비로그인 -->
       <th:block th:if="${session.loginUser == null}">
-        <a th:href="@{/user/login}"  class="btn btn-ghost">로그인</a>
-        <a th:href="@{/user/register}" class="btn btn-primary">회원가입</a>
+        <a th:href="@{/user/login}" class="btn btn-ghost btn-sm">로그인</a>
+        <a th:href="@{/user/register}" class="btn btn-primary btn-sm">회원가입</a>
       </th:block>
+
+      <!-- 로그인 -->
       <th:block th:if="${session.loginUser != null}">
-        <a th:href="@{/post/create}" class="btn btn-primary">✏ 글쓰기</a>
-        <a th:href="@{/user/mypage}" class="avatar"
-           th:data-avatar="${session.loginUser.nickname}"
-           th:title="${session.loginUser.nickname}">
-          <span th:text="${#strings.substring(session.loginUser.nickname,0,1)}"></span>
-        </a>
+        <a href="#" class="bell" title="알림">🔔<span class="dot"></span></a>
+
+        <div class="profile-menu" id="profileMenu">
+          <button type="button" class="profile-trigger" id="profileTrigger">
+            <span class="avatar avatar-sm"
+                  th:data-avatar="${session.loginUser.nickname}"
+                  th:style="${session.loginUser.profileImage != null} ? 'background-image:url(' + ${session.loginUser.profileImage} + ')' : ''"
+                  th:text="${session.loginUser.profileImage == null} ? ${#strings.substring(session.loginUser.nickname,0,1)} : ''"></span>
+            <span class="nick" th:text="${session.loginUser.nickname}">닉네임</span>
+            <span class="caret">▾</span>
+          </button>
+
+          <div class="dropdown">
+            <div class="dropdown-head">
+              <span class="avatar"
+                    th:data-avatar="${session.loginUser.nickname}"
+                    th:style="${session.loginUser.profileImage != null} ? 'background-image:url(' + ${session.loginUser.profileImage} + ')' : ''"
+                    th:text="${session.loginUser.profileImage == null} ? ${#strings.substring(session.loginUser.nickname,0,1)} : ''"></span>
+              <div>
+                <div class="name" th:text="${session.loginUser.nickname}">닉네임</div>
+                <div class="mail" th:text="${session.loginUser.email}">이메일</div>
+              </div>
+            </div>
+            <a th:href="@{/user/mypage}" class="dropdown-item">👤 마이페이지</a>
+            <a th:href="@{/user/settings}" class="dropdown-item">⚙️ 설정</a>
+            <a th:href="@{/user/logout}" class="dropdown-item danger">🚪 로그아웃</a>
+          </div>
+        </div>
       </th:block>
-    </nav>
+    </div>
   </div>
 </header>
+
+<!-- ═══════════ 좌측 내비 ═══════════ -->
+<aside th:fragment="sidebar(active)" class="sidebar">
+  <a th:href="@{/}" class="nav-link" th:classappend="${active == 'home'} ? 'active'">
+    <span class="nico">🏠</span> 홈
+  </a>
+  <a th:href="@{/posts(sort='popular')}" class="nav-link" th:classappend="${active == 'popular'} ? 'active'">
+    <span class="nico">🔥</span> 인기 게시글
+  </a>
+  <a th:href="@{/posts(sort='latest')}" class="nav-link" th:classappend="${active == 'latest'} ? 'active'">
+    <span class="nico">🕒</span> 최신 게시글
+  </a>
+  <a th:href="@{/user/mypage}" class="nav-link" th:classappend="${active == 'mypage'} ? 'active'">
+    <span class="nico">📊</span> 내 활동
+  </a>
+
+  <div class="nav-divider"></div>
+  <div class="nav-section-label">카테고리</div>
+
+  <a th:href="@{/posts(category='')}" class="nav-link"
+     th:classappend="${active == 'cat-ALL'} ? 'active'">
+    <span class="nico">📁</span> 전체
+    <span class="count" th:text="${catCounts != null ? catCounts.getOrDefault('ALL', 0) : 0}">0</span>
+  </a>
+  <a th:each="cat : ${categories}"
+     th:href="@{/posts(category=${cat.name()})}" class="nav-link"
+     th:classappend="${active == 'cat-' + cat.name()} ? 'active'">
+    <span class="nico" th:text="${cat.icon}">•</span>
+    <span th:text="${cat.label}">카테고리</span>
+    <span class="count" th:text="${catCounts != null ? catCounts.getOrDefault(cat.name(), 0) : 0}">0</span>
+  </a>
+
+  <a th:href="@{/post/create}" class="nav-write">✏️ 글쓰기</a>
+</aside>
+
+<!-- ═══════════ 우측 위젯 (홈 전용) ═══════════ -->
+<aside th:fragment="widgets" class="widgets">
+  <div class="widget">
+    <div class="widget-title">📢 공지사항</div>
+    <div class="notice-item"><span class="pin">📌</span><span class="nt">하루 커뮤니티 베타 오픈 안내</span></div>
+    <div class="notice-item"><span class="pin">📌</span><span class="nt">건전한 커뮤니티 이용 수칙</span></div>
+    <div class="notice-item"><span class="pin">📌</span><span class="nt">이미지·동영상 업로드 가이드</span></div>
+  </div>
+
+  <div class="widget">
+    <div class="widget-title">🏷️ 실시간 인기 태그</div>
+    <div class="tag-cloud">
+      <a th:href="@{/posts(keyword='Spring')}" class="tag"># Spring</a>
+      <a th:href="@{/posts(keyword='Java')}" class="tag"># Java</a>
+      <a th:href="@{/posts(keyword='후기')}" class="tag"># 후기</a>
+      <a th:href="@{/posts(keyword='꿀팁')}" class="tag"># 꿀팁</a>
+      <a th:href="@{/posts(keyword='질문')}" class="tag"># 질문</a>
+      <a th:href="@{/posts(keyword='일상')}" class="tag"># 일상</a>
+    </div>
+  </div>
+
+  <div class="widget">
+    <div class="widget-title">🟢 온라인 멤버</div>
+    <div class="online-item"><span class="avatar avatar-sm" data-avatar="봄날">봄</span><span class="nm">봄날</span><span class="status-dot online" style="margin-left:auto"></span></div>
+    <div class="online-item"><span class="avatar avatar-sm" data-avatar="여름이">여</span><span class="nm">여름이</span><span class="status-dot online" style="margin-left:auto"></span></div>
+    <div class="online-item"><span class="avatar avatar-sm" data-avatar="운영자">운</span><span class="nm">운영자</span><span class="status-dot away" style="margin-left:auto"></span></div>
+  </div>
+</aside>
+
+<!-- ═══════════ 푸터 ═══════════ -->
+<footer th:fragment="footer" class="site-footer">
+  <div class="footer-inner">
+    <span>© 2026 하루 — 매일 들르는 이야기</span>
+    <div class="footer-links">
+      <a href="#">이용약관</a>
+      <a href="#">개인정보처리방침</a>
+      <a href="#">고객센터</a>
+    </div>
+  </div>
+</footer>
 
 </html>

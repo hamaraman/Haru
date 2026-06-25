@@ -99,7 +99,7 @@
   </style>
 </head>
 <body>
-<th:block th:replace="~{fragments/header :: navbar}"></th:block>
+<th:block th:replace="~{fragments/header :: topbar}"></th:block>
 
 <!-- 업로드 오버레이 -->
 <div class="upload-overlay" id="uploadOverlay">
@@ -110,8 +110,9 @@
   </div>
 </div>
 
-<main class="page-main">
-  <div class="container" style="max-width:860px">
+<div class="layout">
+  <th:block th:replace="~{fragments/header :: sidebar('')}"></th:block>
+  <main class="main">
 
     <div class="page-header" style="margin-bottom:24px;">
       <h1 class="page-title" th:text="${postId != null} ? '글 수정' : '새 글 작성'">글쓰기</h1>
@@ -158,7 +159,7 @@
         </form>
 
         <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px;">
-          <a th:href="@{/}" class="btn btn-ghost">취소</a>
+          <a th:href="@{/posts}" class="btn btn-ghost">취소</a>
           <button type="button" onclick="submitPost()"
                   class="btn btn-primary" style="padding:10px 28px;"
                   th:text="${postId != null} ? '수정 완료' : '등록하기'">등록</button>
@@ -166,8 +167,10 @@
       </div>
     </div>
 
-  </div>
-</main>
+  </main>
+</div>
+
+<th:block th:replace="~{fragments/header :: footer}"></th:block>
 
 <!-- Quill JS -->
 <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
@@ -313,8 +316,8 @@ quill.getModule('toolbar').addHandler('video', () => {
   input.onchange = async () => {
     const file = input.files[0];
     if (!file) return;
-    if (file.size > 200 * 1024 * 1024) {
-      alert('동영상 파일은 200MB 이하만 업로드 가능합니다.');
+    if (file.size > 1024 * 1024 * 1024) {
+      alert('동영상 파일은 1GB 이하만 업로드 가능합니다.');
       return;
     }
     showOverlay('동영상 업로드 중...', true);

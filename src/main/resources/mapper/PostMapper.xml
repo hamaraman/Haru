@@ -3,6 +3,38 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.example.asq.mapper.PostMapper">
 
+    <!-- 동적 정렬: 최신순 / 인기순(좋아요) / 조회순 -->
+    <sql id="orderBy">
+        <choose>
+            <when test="sort == 'popular'">ORDER BY p.like_count DESC, p.id DESC</when>
+            <when test="sort == 'views'">ORDER BY p.view_count DESC, p.id DESC</when>
+            <otherwise>ORDER BY p.created_at DESC, p.id DESC</otherwise>
+        </choose>
+    </sql>
+
+    <!-- 동적 검색 조건 -->
+    <sql id="searchWhere">
+        <where>
+            <if test="category != null and category != '' and category != 'ALL'">
+                AND p.category = #{category}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                <choose>
+                    <when test="searchType == 'title'">
+                        AND p.title LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <when test="searchType == 'author'">
+                        AND m.nickname LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <otherwise>
+                        AND (p.title LIKE CONCAT('%', #{keyword}, '%')
+                        OR m.nickname LIKE CONCAT('%', #{keyword}, '%'))
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+    </sql>
+
     <select id="searchPosts" resultType="org.example.asq.dto.PostDto">
         SELECT p.id,
                p.category,
@@ -10,31 +42,14 @@
                p.view_count,
                p.like_count,
                p.created_at,
-               m.nickname AS author_nickname,
-               m.id       AS user_id,
+               m.nickname      AS author_nickname,
+               m.profile_image AS profile_image,
+               m.id            AS user_id,
                (SELECT COUNT(*) FROM comment c WHERE c.post_id = p.id) AS comment_count
         FROM post p
                  JOIN member m ON p.member_id = m.id
-        <where>
-            <if test="category != null and category != '' and category != 'ALL'">
-                AND p.category = #{category}
-            </if>
-            <if test="keyword != null and keyword != ''">
-                <choose>
-                    <when test="searchType == 'title'">
-                        AND p.title LIKE CONCAT('%', #{keyword}, '%')
-                    </when>
-                    <when test="searchType == 'author'">
-                        AND m.nickname LIKE CONCAT('%', #{keyword}, '%')
-                    </when>
-                    <otherwise>
-                        AND (p.title LIKE CONCAT('%', #{keyword}, '%')
-                        OR m.nickname LIKE CONCAT('%', #{keyword}, '%'))
-                    </otherwise>
-                </choose>
-            </if>
-        </where>
-        ORDER BY p.created_at DESC
+        <include refid="searchWhere"/>
+        <include refid="orderBy"/>
         LIMIT #{limit} OFFSET #{offset}
     </select>
 
@@ -42,25 +57,31 @@
         SELECT COUNT(*)
         FROM post p
                  JOIN member m ON p.member_id = m.id
-        <where>
-            <if test="category != null and category != '' and category != 'ALL'">
-                AND p.category = #{category}
-            </if>
-            <if test="keyword != null and keyword != ''">
-                <choose>
-                    <when test="searchType == 'title'">
-                        AND p.title LIKE CONCAT('%', #{keyword}, '%')
-                    </when>
-                    <when test="searchType == 'author'">
-                        AND m.nickname LIKE CONCAT('%', #{keyword}, '%')
-                    </when>
-                    <otherwise>
-                        AND (p.title LIKE CONCAT('%', #{keyword}, '%')
-                        OR m.nickname LIKE CONCAT('%', #{keyword}, '%'))
-                    </otherwise>
-                </choose>
-            </if>
-        </where>
+        <include refid="searchWhere"/>
+    </select>
+
+    <select id="countByCategory" resultType="map">
+        SELECT category, COUNT(*) AS cnt
+        FROM post
+        GROUP BY category
+    </select>
+
+    <select id="findTopPosts" resultType="org.example.asq.dto.PostDto">
+        SELECT p.id,
+               p.category,
+               p.title,
+               p.content,
+               p.view_count,
+               p.like_count,
+               p.created_at,
+               m.nickname      AS author_nickname,
+               m.profile_image AS profile_image,
+               m.id            AS user_id,
+               (SELECT COUNT(*) FROM comment c WHERE c.post_id = p.id) AS comment_count
+        FROM post p
+                 JOIN member m ON p.member_id = m.id
+        <include refid="orderBy"/>
+        LIMIT #{limit}
     </select>
 
 </mapper>

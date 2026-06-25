@@ -26,13 +26,23 @@ public class PostController {
     private final PostService postService;
     private final CommentService commentService;
 
+    /** 홈 대시보드: 히어로 + 인기 게시글 + 최신 게시글 + 우측 위젯 */
     @GetMapping("/")
-    public String index(Model model,
-                        @RequestParam(defaultValue = "") String keyword,
-                        @RequestParam(defaultValue = "all") String searchType,
-                        @RequestParam(defaultValue = "") String category,
-                        @RequestParam(defaultValue = "1") int page) {
-        Map<String, Object> result = postService.searchPosts(keyword, searchType, category, page);
+    public String home(Model model) {
+        model.addAttribute("popularPosts", postService.topPosts("popular", 3));
+        model.addAttribute("latestPosts", postService.topPosts("latest", 6));
+        return "index";
+    }
+
+    /** 게시글 목록: 검색 + 정렬(최신/인기/조회) + 카테고리 필터 + 페이지네이션 */
+    @GetMapping("/posts")
+    public String list(Model model,
+                       @RequestParam(defaultValue = "") String keyword,
+                       @RequestParam(defaultValue = "all") String searchType,
+                       @RequestParam(defaultValue = "") String category,
+                       @RequestParam(defaultValue = "latest") String sort,
+                       @RequestParam(defaultValue = "1") int page) {
+        Map<String, Object> result = postService.searchPosts(keyword, searchType, category, sort, page);
         model.addAttribute("posts", result.get("posts"));
         model.addAttribute("totalPages", result.get("totalPages"));
         model.addAttribute("currentPage", result.get("currentPage"));
@@ -40,15 +50,16 @@ public class PostController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("searchType", searchType);
         model.addAttribute("category", category);
-        model.addAttribute("categories", Category.values());
-        return "index";
+        model.addAttribute("categoryLabel",
+                (category == null || category.isEmpty()) ? null : Category.labelOf(category));
+        model.addAttribute("sort", sort);
+        return "post/list";
     }
 
     @GetMapping("/post/create")
     public String createForm(HttpSession session, Model model) {
         if (session.getAttribute("loginUser") == null) return "redirect:/user/login";
         model.addAttribute("postDto", new PostDto());
-        model.addAttribute("categories", Category.values());
         return "post/form";
     }
 
