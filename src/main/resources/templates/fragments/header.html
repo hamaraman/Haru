@@ -7,6 +7,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title th:text="${title} + ' — 하루'">하루</title>
   <link rel="stylesheet" th:href="@{/css/style.css}">
+  <!-- FOUC 방지: 페인트 전에 저장된 테마 적용 -->
+  <script>
+    (function () {
+      var t = localStorage.getItem('theme')
+        || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
 </th:block>
 
 <!-- ═══════════ 상단 바 ═══════════ -->
@@ -24,6 +32,10 @@
     </form>
 
     <div class="topbar-actions">
+      <!-- 다크모드 토글 -->
+      <button type="button" class="theme-toggle" id="themeToggle"
+              title="다크모드 전환" aria-label="다크모드 전환">🌙</button>
+
       <!-- 비로그인 -->
       <th:block th:if="${session.loginUser == null}">
         <a th:href="@{/user/login}" class="btn btn-ghost btn-sm">로그인</a>

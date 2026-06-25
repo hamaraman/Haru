@@ -1,5 +1,22 @@
 /* 하루 — main.js */
 
+/* ── 다크모드 토글 (테마 적용은 head 인라인 스크립트가 선처리) ── */
+const themeToggle = document.getElementById('themeToggle');
+function syncThemeIcon() {
+  if (!themeToggle) return;
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  themeToggle.textContent = dark ? '☀️' : '🌙';
+}
+syncThemeIcon();
+if (themeToggle) {
+  themeToggle.addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    syncThemeIcon();
+  });
+}
+
 /* ── 닉네임 기반 아바타 색상 ── */
 const AVATAR_COLORS = [
   '#6c4cf0','#4263eb','#d9480f','#2b8a3e','#9c36b5',
