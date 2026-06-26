@@ -32,6 +32,11 @@
     </form>
 
     <div class="topbar-actions">
+      <!-- 모바일 검색 버튼 -->
+      <button type="button" class="mobile-search-btn" id="mobileSearchBtn" aria-label="검색">
+        <img th:src="@{/images/icons/icon-search.png}" class="icon-themed" alt="">
+      </button>
+
       <!-- 다크모드 토글 -->
       <button type="button" class="theme-toggle" id="themeToggle"
               title="테마 전환" aria-label="테마 전환">
@@ -86,6 +91,17 @@
         </div>
       </th:block>
     </div>
+  </div>
+
+  <!-- 모바일 검색 패널 -->
+  <div class="mobile-search-panel" id="mobileSearchPanel">
+    <form th:action="@{/posts}" method="get" style="display:flex;gap:8px;align-items:center;">
+      <input type="text" name="keyword" id="mobileSearchInput"
+             placeholder="하루에서 이야기 검색" autocomplete="off">
+      <button type="submit" class="mobile-search-submit" aria-label="검색">
+        <img th:src="@{/images/icons/icon-search.png}" class="icon-themed" alt="">
+      </button>
+    </form>
   </div>
 </header>
 

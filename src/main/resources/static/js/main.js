@@ -85,6 +85,20 @@ document.querySelectorAll('[data-href]').forEach(item => {
   item.addEventListener('click', () => { location.href = item.dataset.href; });
 });
 
+/* ── 모바일 검색 토글 ── */
+const mobileSearchBtn = document.getElementById('mobileSearchBtn');
+const mobileSearchPanel = document.getElementById('mobileSearchPanel');
+const mobileSearchInput = document.getElementById('mobileSearchInput');
+if (mobileSearchBtn && mobileSearchPanel) {
+  mobileSearchBtn.addEventListener('click', () => {
+    const open = mobileSearchPanel.classList.toggle('open');
+    if (open && mobileSearchInput) mobileSearchInput.focus();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') mobileSearchPanel.classList.remove('open');
+  });
+}
+
 /* ── textarea 자동 높이 ── */
 document.querySelectorAll('textarea[data-autoresize]').forEach(ta => {
   ta.addEventListener('input', () => {
