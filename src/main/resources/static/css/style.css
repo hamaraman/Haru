@@ -108,11 +108,11 @@ img.icon-stat {
   transition: border-color .15s, background .15s, transform .15s;
 }
 .theme-toggle:hover { border-color: var(--accent); transform: translateY(-1px); }
-/* 라이트 모드: moon 표시(클릭 시 다크 전환), sun 숨김 */
-.icon-sun { display: none; }
-/* 다크 모드: sun 표시(클릭 시 라이트 전환), moon 숨김 */
-[data-theme="dark"] .icon-sun { display: inline-block; }
-[data-theme="dark"] .icon-moon { display: none; }
+/* 라이트 모드: moon 표시, sun 숨김 */
+img.icon-sun { display: none; }
+/* 다크 모드: sun 표시, moon 숨김 */
+[data-theme="dark"] img.icon-sun { display: inline-block; }
+[data-theme="dark"] img.icon-moon { display: none; }
 /* 테마 토글 아이콘 크기 */
 .theme-toggle img { width: 20px; height: 20px; }
 
