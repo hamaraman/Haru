@@ -767,6 +767,7 @@ textarea, input, select { font-family: inherit; }
 .alert { padding: 12px 16px; border-radius: 11px; font-size: .9rem; margin-bottom: 16px; font-weight: 600; }
 .alert-success { background: #ebfbee; color: #2b8a3e; border: 1px solid #b2f2bb; }
 .alert-danger  { background: #fff0f3; color: #c92a4a; border: 1px solid #ffc9d4; }
+.alert-info    { background: #e7f5ff; color: #1864ab; border: 1px solid #a5d8ff; }
 
 /* ── Empty ── */
 .empty { text-align: center; padding: 56px 20px; color: var(--text-sub); font-size: .95rem; }
