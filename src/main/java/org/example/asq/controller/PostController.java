@@ -13,11 +13,16 @@ import org.example.asq.util.HtmlSanitizer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.validation.Valid;
+
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Controller
 @RequiredArgsConstructor
@@ -60,14 +65,20 @@ public class PostController {
     public String createForm(HttpSession session, Model model) {
         if (session.getAttribute("loginUser") == null) return "redirect:/user/login";
         model.addAttribute("postDto", new PostDto());
+        model.addAttribute("categories", Category.values());
         return "post/form";
     }
 
     @PostMapping("/post/create")
-    public String create(@ModelAttribute PostDto postDto, HttpSession session,
-                         RedirectAttributes attrs) {
+    public String create(@Valid @ModelAttribute PostDto postDto, BindingResult bindingResult,
+                         HttpSession session, RedirectAttributes attrs, Model model) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) return "redirect:/user/login";
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("categories", Category.values());
+            model.addAttribute("error", bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return "post/form";
+        }
         try {
             Post post = postService.create(postDto, loginUser.getId());
             return "redirect:/post/" + post.getId();
@@ -79,6 +90,16 @@ public class PostController {
 
     @GetMapping("/post/{id}")
     public String view(@PathVariable Long id, HttpSession session, Model model) {
+        // 세션당 게시글 1회만 조회수 증가
+        @SuppressWarnings("unchecked")
+        Set<Long> viewed = (Set<Long>) session.getAttribute("viewedPosts");
+        if (viewed == null) viewed = new HashSet<>();
+        if (!viewed.contains(id)) {
+            postService.increaseViewCount(id);
+            viewed.add(id);
+            session.setAttribute("viewedPosts", viewed);
+        }
+
         Post post = postService.findById(id);
         List<Comment> comments = commentService.findByPostId(id);
         User loginUser = (User) session.getAttribute("loginUser");
@@ -97,7 +118,7 @@ public class PostController {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) return "redirect:/user/login";
 
-        Post post = postService.findByIdForEdit(id);
+        Post post = postService.findById(id);
         if (!post.getUser().getId().equals(loginUser.getId())) {
             attrs.addFlashAttribute("error", "수정 권한이 없습니다.");
             return "redirect:/post/" + id;
@@ -113,10 +134,17 @@ public class PostController {
     }
 
     @PostMapping("/post/{id}/edit")
-    public String edit(@PathVariable Long id, @ModelAttribute PostDto postDto,
-                       HttpSession session, RedirectAttributes attrs) {
+    public String edit(@PathVariable Long id, @Valid @ModelAttribute PostDto postDto,
+                       BindingResult bindingResult, HttpSession session,
+                       RedirectAttributes attrs, Model model) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) return "redirect:/user/login";
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("categories", Category.values());
+            model.addAttribute("postId", id);
+            model.addAttribute("error", bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return "post/form";
+        }
         try {
             postService.update(id, postDto, loginUser.getId());
             return "redirect:/post/" + id;

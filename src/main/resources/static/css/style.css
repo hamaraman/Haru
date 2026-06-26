@@ -57,6 +57,42 @@
 :root { color-scheme: light; }
 [data-theme="dark"] { color-scheme: dark; }
 
+/* ── PNG 아이콘 기본 스타일 ── */
+img.icon-themed {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  object-fit: contain;
+  /* 라이트 모드: 검정 아이콘 그대로 */
+}
+/* 다크 모드: 흰색으로 반전 */
+[data-theme="dark"] img.icon-themed {
+  filter: invert(1);
+}
+/* 액티브 사이드바(보라 배경)에서 흰색 */
+.nav-link.active img.icon-themed {
+  filter: invert(1);
+}
+/* 위험색 아이콘 (♥ 빨강) */
+img.icon-danger {
+  filter: invert(34%) sepia(97%) saturate(730%) hue-rotate(310deg) brightness(105%);
+}
+[data-theme="dark"] img.icon-danger {
+  filter: invert(34%) sepia(97%) saturate(730%) hue-rotate(310deg) brightness(105%);
+}
+/* 카테고리 썸네일 아이콘 (흰색 고정) */
+img.icon-cat {
+  display: block;
+  object-fit: contain;
+}
+/* 작은 통계 아이콘 */
+img.icon-stat {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
 /* ── 테마 토글 버튼 ── */
 .theme-toggle {
   width: 38px;
@@ -65,13 +101,20 @@
   border: 1px solid var(--border);
   background: var(--card);
   color: var(--text-sub);
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: border-color .15s, background .15s, transform .15s;
 }
 .theme-toggle:hover { border-color: var(--accent); transform: translateY(-1px); }
+/* 라이트 모드: moon 표시(클릭 시 다크 전환), sun 숨김 */
+.icon-sun { display: none; }
+/* 다크 모드: sun 표시(클릭 시 라이트 전환), moon 숨김 */
+[data-theme="dark"] .icon-sun { display: inline-block; }
+[data-theme="dark"] .icon-moon { display: none; }
+/* 테마 토글 아이콘 크기 */
+.theme-toggle img { width: 20px; height: 20px; }
 
 /* ── Reset & Base ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -145,7 +188,7 @@ textarea, input, select { font-family: inherit; }
   transition: border-color .15s, background .15s;
 }
 .topbar-search:focus-within { border-color: var(--accent); background: #fff; }
-.topbar-search .ico { color: var(--text-sub); font-size: 1rem; }
+.topbar-search .ico { width: 16px; height: 16px; object-fit: contain; }
 .topbar-search input {
   flex: 1;
   border: none;
@@ -170,6 +213,7 @@ textarea, input, select { font-family: inherit; }
   position: relative;
   transition: all .15s;
 }
+.bell img { width: 18px; height: 18px; object-fit: contain; }
 .bell:hover { border-color: var(--accent); color: var(--accent); }
 .bell .dot {
   position: absolute;
@@ -194,7 +238,7 @@ textarea, input, select { font-family: inherit; }
 }
 .profile-trigger:hover { border-color: var(--accent); background: var(--accent-light); }
 .profile-trigger .nick { font-size: .9rem; font-weight: 700; }
-.profile-trigger .caret { color: var(--text-sub); font-size: .7rem; transition: transform .15s; }
+.profile-trigger .caret { width: 14px; height: 14px; object-fit: contain; transition: transform .15s; }
 .profile-menu.open .profile-trigger .caret { transform: rotate(180deg); }
 
 .dropdown {
@@ -237,6 +281,7 @@ textarea, input, select { font-family: inherit; }
 }
 .dropdown-item:hover { background: var(--accent-light); color: var(--accent); }
 .dropdown-item.danger:hover { background: #fff0f3; color: var(--danger); }
+.dropdown-item img { width: 16px; height: 16px; flex-shrink: 0; object-fit: contain; }
 
 /* ════════════════════════════════════════
    3단 레이아웃 셸
@@ -275,7 +320,7 @@ textarea, input, select { font-family: inherit; }
   color: var(--text-sub);
   transition: background .12s, color .12s;
 }
-.nav-link .nico { width: 20px; text-align: center; font-size: 1.05rem; }
+.nav-link .nico { width: 18px; height: 18px; flex-shrink: 0; object-fit: contain; }
 .nav-link:hover { background: var(--accent-light); color: var(--accent); }
 .nav-link.active { background: var(--accent); color: #fff; }
 .nav-link .count {
@@ -314,6 +359,7 @@ textarea, input, select { font-family: inherit; }
 }
 .nav-write:hover { filter: brightness(1.05); }
 .nav-write:active { transform: translateY(1px); }
+.nav-write img { width: 16px; height: 16px; object-fit: contain; }
 
 /* ── 중앙 본문 ── */
 .main { min-width: 0; }
@@ -341,6 +387,7 @@ textarea, input, select { font-family: inherit; }
   align-items: center;
   gap: 7px;
 }
+.widget-title img { width: 15px; height: 15px; object-fit: contain; }
 .notice-item {
   display: flex;
   gap: 8px;
@@ -349,7 +396,8 @@ textarea, input, select { font-family: inherit; }
   border-bottom: 1px dashed var(--border);
 }
 .notice-item:last-child { border-bottom: none; }
-.notice-item .pin { color: var(--accent); }
+.notice-item .pin { color: var(--accent); display: inline-flex; align-items: center; }
+.notice-item .pin img { width: 13px; height: 13px; object-fit: contain; }
 .notice-item .nt { flex: 1; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tag-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
 .tag {
@@ -423,6 +471,7 @@ textarea, input, select { font-family: inherit; }
   margin: 28px 0 16px;
 }
 .section-head h2 { font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+.section-head h2 img { width: 1.1rem; height: 1.1rem; object-fit: contain; }
 .section-head a { font-size: .85rem; font-weight: 600; color: var(--accent); }
 
 /* 인기 게시글 카드 (썸네일) */
@@ -445,9 +494,9 @@ textarea, input, select { font-family: inherit; }
   height: 96px;
   display: grid;
   place-items: center;
-  font-size: 2.2rem;
   color: #fff;
 }
+.pop-thumb img.icon-cat { width: 2.4rem; height: 2.4rem; }
 .pop-thumb.t-FREE     { background: linear-gradient(135deg,#4263eb,#5c7cfa); }
 .pop-thumb.t-QUESTION { background: linear-gradient(135deg,#e8590c,#fd7e14); }
 .pop-thumb.t-INFO     { background: linear-gradient(135deg,#2f9e44,#51cf66); }
@@ -463,6 +512,8 @@ textarea, input, select { font-family: inherit; }
 }
 .pop-foot .author { display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--text); }
 .pop-foot .stats { margin-left: auto; display: flex; gap: 10px; }
+.pop-foot .stats span { display: flex; align-items: center; gap: 3px; }
+.pop-foot .stats img { width: 12px; height: 12px; object-fit: contain; }
 
 /* 최신 게시글 리스트 */
 .feed-card {
@@ -503,6 +554,7 @@ textarea, input, select { font-family: inherit; }
   font-size: .8rem; white-space: nowrap;
 }
 .post-meta .ico { display: flex; align-items: center; gap: 4px; }
+.post-meta .ico img.icon-stat { width: 12px; height: 12px; }
 .post-meta .like { color: var(--danger); }
 
 /* 정렬 탭 */
@@ -549,8 +601,10 @@ textarea, input, select { font-family: inherit; }
   color: var(--text-sub); display: inline-flex; align-items: center; gap: 6px;
   font-size: .88rem; font-weight: 700; transition: all .15s;
 }
+.btn-icon img { width: 16px; height: 16px; object-fit: contain; vertical-align: middle; }
 .btn-icon:hover { border-color: var(--danger); color: var(--danger); }
 .btn-icon.liked { background: #fff0f3; border-color: var(--danger); color: var(--danger); }
+.like-icon { width: 16px; height: 16px; object-fit: contain; vertical-align: middle; }
 
 /* ── Avatar ── */
 .avatar {

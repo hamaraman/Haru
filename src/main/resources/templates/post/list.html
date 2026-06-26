@@ -53,9 +53,9 @@
           <span th:class="'chip chip-' + ${post.category}" th:text="${post.categoryLabel}">카테고리</span>
           <span class="post-title" th:text="${post.title}">제목</span>
           <div class="post-meta">
-            <span class="ico like">♥ <span th:text="${post.likeCount}">0</span></span>
-            <span class="ico">💬 <span th:text="${post.commentCount}">0</span></span>
-            <span class="ico">👁 <span th:text="${post.viewCount}">0</span></span>
+            <span class="ico like"><img th:src="@{/images/icons/icon-heart.png}" class="icon-stat icon-danger" alt=""> <span th:text="${post.likeCount}">0</span></span>
+            <span class="ico"><img th:src="@{/images/icons/icon-chat.png}" class="icon-stat icon-themed" alt=""> <span th:text="${post.commentCount}">0</span></span>
+            <span class="ico"><img th:src="@{/images/icons/icon-eye.png}" class="icon-stat icon-themed" alt=""> <span th:text="${post.viewCount}">0</span></span>
             <span class="ico" th:text="${post.authorNickname}">작성자</span>
             <span class="ico" th:text="${#temporals.format(post.createdAt,'MM.dd HH:mm')}">날짜</span>
           </div>

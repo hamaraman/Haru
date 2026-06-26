@@ -22,13 +22,15 @@
 
     <!-- 인기 게시글 -->
     <div class="section-head">
-      <h2>🔥 인기 게시글</h2>
+      <h2><img th:src="@{/images/icons/icon-flame.png}" class="icon-themed" alt=""> 인기 게시글</h2>
       <a th:href="@{/posts(sort='popular')}">더보기</a>
     </div>
 
     <div class="pop-grid" th:if="${!#lists.isEmpty(popularPosts)}">
       <div th:each="p : ${popularPosts}" class="pop-card" th:data-href="@{/post/{id}(id=${p.id})}">
-        <div th:class="'pop-thumb t-' + ${p.category}" th:text="${p.categoryIcon}">💬</div>
+        <div th:class="'pop-thumb t-' + ${p.category}">
+          <img th:src="@{'/images/icons/icon-' + ${p.categoryIcon} + '-white.png'}" class="icon-cat" alt="">
+        </div>
         <div class="pop-body">
           <span th:class="'chip chip-' + ${p.category}" th:text="${p.categoryLabel}"
                 style="align-self:flex-start">카테고리</span>
@@ -43,8 +45,8 @@
               <span th:text="${p.authorNickname}">작성자</span>
             </span>
             <span class="stats">
-              <span style="color:var(--danger)">♥ <span th:text="${p.likeCount}">0</span></span>
-              <span>💬 <span th:text="${p.commentCount}">0</span></span>
+              <span style="color:var(--danger)"><img th:src="@{/images/icons/icon-heart.png}" class="icon-stat icon-danger" alt=""> <span th:text="${p.likeCount}">0</span></span>
+              <span><img th:src="@{/images/icons/icon-chat.png}" class="icon-stat icon-themed" alt=""> <span th:text="${p.commentCount}">0</span></span>
             </span>
           </div>
         </div>
@@ -54,7 +56,7 @@
 
     <!-- 최신 게시글 -->
     <div class="section-head">
-      <h2>🕒 최신 게시글</h2>
+      <h2><img th:src="@{/images/icons/icon-clock.png}" class="icon-themed" alt=""> 최신 게시글</h2>
       <a th:href="@{/posts(sort='latest')}">더보기</a>
     </div>
 
@@ -64,8 +66,8 @@
           <span th:class="'chip chip-' + ${post.category}" th:text="${post.categoryLabel}">카테고리</span>
           <span class="post-title" th:text="${post.title}">제목</span>
           <div class="post-meta">
-            <span class="ico like">♥ <span th:text="${post.likeCount}">0</span></span>
-            <span class="ico">💬 <span th:text="${post.commentCount}">0</span></span>
+            <span class="ico like"><img th:src="@{/images/icons/icon-heart.png}" class="icon-stat icon-danger" alt=""> <span th:text="${post.likeCount}">0</span></span>
+            <span class="ico"><img th:src="@{/images/icons/icon-chat.png}" class="icon-stat icon-themed" alt=""> <span th:text="${post.commentCount}">0</span></span>
             <span class="ico" th:text="${post.authorNickname}">작성자</span>
             <span class="ico" th:text="${#temporals.format(post.createdAt,'MM.dd')}">날짜</span>
           </div>

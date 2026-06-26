@@ -67,7 +67,8 @@
       <div class="post-actions">
         <button id="like-btn" class="btn-icon" th:classappend="${liked} ? 'liked'"
                 th:data-post-id="${post.id}">
-          <span class="like-icon" th:text="${liked} ? '♥' : '♡'">♡</span>
+          <img th:src="${liked} ? @{/images/icons/icon-heart-filled.png} : @{/images/icons/icon-heart.png}"
+               class="like-icon" id="likeIcon" alt="">
           좋아요 <span id="like-count" th:text="${post.likeCount}">0</span>
         </button>
         <div class="spacer"></div>

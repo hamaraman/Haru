@@ -10,6 +10,7 @@ import org.example.asq.mapper.PostMapper;
 import org.example.asq.repository.PostLikeRepository;
 import org.example.asq.repository.PostRepository;
 import org.example.asq.repository.UserRepository;
+import org.example.asq.util.HtmlSanitizer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,25 +37,22 @@ public class PostService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
         Post post = new Post();
         post.setTitle(dto.getTitle());
-        post.setContent(dto.getContent());
+        post.setContent(HtmlSanitizer.sanitize(dto.getContent()));
         post.setCategory(dto.getCategory() != null
                 ? Category.valueOf(dto.getCategory()) : Category.FREE);
         post.setUser(user);
         return postRepository.save(post);
     }
 
-    @Transactional
-    public Post findById(Long id) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
-        post.setViewCount(post.getViewCount() + 1);
-        return postRepository.save(post);
-    }
-
     @Transactional(readOnly = true)
-    public Post findByIdForEdit(Long id) {
+    public Post findById(Long id) {
         return postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+    }
+
+    @Transactional
+    public void increaseViewCount(Long id) {
+        postRepository.increaseViewCount(id);
     }
 
     @Transactional
@@ -65,7 +63,7 @@ public class PostService {
             throw new IllegalArgumentException("수정 권한이 없습니다.");
         }
         post.setTitle(dto.getTitle());
-        post.setContent(dto.getContent());
+        post.setContent(HtmlSanitizer.sanitize(dto.getContent()));
         if (dto.getCategory() != null) {
             post.setCategory(Category.valueOf(dto.getCategory()));
         }
