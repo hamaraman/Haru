@@ -205,6 +205,7 @@ class VideoBlot extends BlockEmbed {
       node = document.createElement('video');
       node.setAttribute('src', value);
       node.setAttribute('controls', true);
+      node.setAttribute('controlsList', 'nodownload noplaybackrate');
       node.setAttribute('preload', 'metadata');
       node.style.maxWidth = '100%';
       node.style.borderRadius = '10px';
