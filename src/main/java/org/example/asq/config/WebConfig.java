@@ -1,26 +1,18 @@
 package org.example.asq.config;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${app.upload-dir}")
-    private String uploadDir;
-
     private final RateLimitInterceptor rateLimitInterceptor;
 
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:" + uploadDir + "/");
-    }
+    // /uploads/** 는 MediaController 가 직접 서빙한다(영상 다운로드 보호).
+    // 정적 리소스 핸들러를 두지 않는다.
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

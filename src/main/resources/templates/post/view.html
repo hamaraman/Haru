@@ -205,6 +205,15 @@
     });
   }
 
+  // ── 영상 다운로드 차단 ──
+  document.querySelectorAll('.post-content video').forEach(video => {
+    // 컨트롤 메뉴(⋮)의 '다운로드' 버튼 제거
+    video.setAttribute('controlsList', 'nodownload noplaybackrate');
+    video.disablePictureInPicture = true;
+    // 우클릭 '동영상 저장' 차단
+    video.addEventListener('contextmenu', e => e.preventDefault());
+  });
+
   // ── 라이트박스 ──
   document.querySelectorAll('.post-content img').forEach(img => {
     img.addEventListener('click', () => {
