@@ -120,6 +120,16 @@
 
     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
+    <!-- 임시저장 복원 배너 -->
+    <div id="draftBanner" style="display:none;align-items:center;justify-content:space-between;gap:12px;"
+         class="alert alert-info">
+      <span>임시저장된 글이 있습니다 — <span id="draftTime" style="font-weight:600;"></span></span>
+      <div style="display:flex;gap:8px;flex-shrink:0;">
+        <button type="button" class="btn btn-primary btn-sm" onclick="restoreDraft()">복원하기</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="discardDraft()">삭제</button>
+      </div>
+    </div>
+
     <div class="card">
       <div class="form-card">
         <form id="postForm"
@@ -244,10 +254,59 @@ const quill = new Quill('#quill-editor', {
 
 /* ── 수정 모드: 기존 내용 로드 (innerHTML 직접 삽입 금지 → Delta 변환으로 XSS 차단) ── */
 const existingContent = /*[[${postDto.content}]]*/ '';
+const postId = /*[[${postId}]]*/ null;
 if (existingContent) {
   const delta = quill.clipboard.convert(existingContent);
   quill.setContents(delta, 'silent');
 }
+
+/* ── 임시저장 (localStorage) ── */
+const DRAFT_KEY = postId ? `draft-post-${postId}` : 'draft-post-new';
+
+function saveDraft() {
+  const title = document.getElementById('title').value;
+  const content = quill.root.innerHTML;
+  if (!title && (content === '<p><br></p>' || !content.trim())) return;
+  localStorage.setItem(DRAFT_KEY, JSON.stringify({
+    title, content, savedAt: new Date().toISOString()
+  }));
+}
+
+function loadDraft() {
+  if (existingContent) return; // 수정 모드는 기존 내용 우선
+  const raw = localStorage.getItem(DRAFT_KEY);
+  if (!raw) return;
+  try {
+    const draft = JSON.parse(raw);
+    const banner = document.getElementById('draftBanner');
+    document.getElementById('draftTime').textContent =
+      new Date(draft.savedAt).toLocaleString('ko-KR');
+    banner.style.display = 'flex';
+  } catch (e) { localStorage.removeItem(DRAFT_KEY); }
+}
+
+function restoreDraft() {
+  const raw = localStorage.getItem(DRAFT_KEY);
+  if (!raw) return;
+  const draft = JSON.parse(raw);
+  document.getElementById('title').value = draft.title || '';
+  if (draft.content) {
+    quill.setContents(quill.clipboard.convert(draft.content), 'silent');
+  }
+  document.getElementById('draftBanner').style.display = 'none';
+}
+
+function discardDraft() {
+  localStorage.removeItem(DRAFT_KEY);
+  document.getElementById('draftBanner').style.display = 'none';
+}
+
+// 입력 시 자동 저장
+document.getElementById('title').addEventListener('input', saveDraft);
+quill.on('text-change', saveDraft);
+setInterval(saveDraft, 30000); // 30초마다 백업
+
+loadDraft();
 
 /* ── 공통 업로드 유틸 ── */
 function showOverlay(label, showProgress) {
@@ -349,6 +408,7 @@ function submitPost() {
     quill.focus();
     return;
   }
+  localStorage.removeItem(DRAFT_KEY); // 제출 시 임시저장 삭제
   document.getElementById('content').value = content;
   document.getElementById('postForm').submit();
 }
