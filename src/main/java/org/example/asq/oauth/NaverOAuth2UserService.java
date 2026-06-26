@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ public class NaverOAuth2UserService implements OAuth2UserService<OAuth2UserReque
     private final PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     @SuppressWarnings("unchecked")
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
@@ -38,20 +40,23 @@ public class NaverOAuth2UserService implements OAuth2UserService<OAuth2UserReque
         String email = naverResponse.get("email") != null
                 ? String.valueOf(naverResponse.get("email"))
                 : socialId + "@naver.placeholder";
-        String nickname = naverResponse.get("nickname") != null
-                ? String.valueOf(naverResponse.get("nickname"))
-                : String.valueOf(naverResponse.getOrDefault("name", "네이버사용자"));
+        String nickname = naverNickname(naverResponse, socialId);
 
-        User user = userRepository.findBySocialId(socialId).orElseGet(() -> {
-            User nu = new User();
-            nu.setEmail(userRepository.existsByEmail(email)
-                    ? socialId + "_" + email : email);
-            nu.setNickname(nickname);
-            nu.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
-            nu.setProvider("naver");
-            nu.setSocialId(socialId);
-            return userRepository.save(nu);
-        });
+        User user = userRepository.findBySocialId(socialId).orElseGet(() ->
+            // 같은 이메일로 가입한 로컬 계정이 있으면 연동, 없으면 신규 생성
+            userRepository.findByEmail(email).map(existing -> {
+                existing.setSocialId(socialId);
+                return userRepository.save(existing);
+            }).orElseGet(() -> {
+                User nu = new User();
+                nu.setEmail(email);
+                nu.setNickname(nickname);
+                nu.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+                nu.setProvider("naver");
+                nu.setSocialId(socialId);
+                return userRepository.save(nu);
+            })
+        );
 
         Map<String, Object> attributes = new HashMap<>(naverResponse);
         attributes.put("dbUserId", user.getId());
@@ -61,5 +66,16 @@ public class NaverOAuth2UserService implements OAuth2UserService<OAuth2UserReque
                 attributes,
                 "id"
         );
+    }
+
+    /** 네이버 닉네임 → 없으면 실명 대신 'naver_XXXXXX' 형태 */
+    private String naverNickname(Map<String, Object> response, String socialId) {
+        if (response.get("nickname") != null) {
+            String nick = String.valueOf(response.get("nickname")).trim();
+            if (!nick.isEmpty()) return nick;
+        }
+        String suffix = socialId.length() > 6
+                ? socialId.substring(socialId.length() - 6) : socialId;
+        return "naver_" + suffix;
     }
 }
