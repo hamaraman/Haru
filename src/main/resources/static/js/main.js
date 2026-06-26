@@ -1,19 +1,18 @@
 /* 하루 — main.js */
 
-/* ── 다크모드 토글 (테마 적용은 head 인라인 스크립트가 선처리) ── */
-const themeToggle = document.getElementById('themeToggle');
-function syncThemeIcon() {
-  if (!themeToggle) return;
-  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-  themeToggle.textContent = dark ? '☀️' : '🌙';
+/* ── CSRF 토큰 (쿠키 XSRF-TOKEN → 헤더 X-XSRF-TOKEN) ── */
+function getCsrfToken() {
+  const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : '';
 }
-syncThemeIcon();
+
+/* ── 다크모드 토글 (테마 적용은 head 인라인 스크립트가 선처리, 아이콘은 CSS로 제어) ── */
+const themeToggle = document.getElementById('themeToggle');
 if (themeToggle) {
   themeToggle.addEventListener('click', () => {
     const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
-    syncThemeIcon();
   });
 }
 
@@ -61,7 +60,10 @@ if (likeBtn) {
   likeBtn.addEventListener('click', async () => {
     const postId = likeBtn.dataset.postId;
     try {
-      const res = await fetch(`/post/${postId}/like`, { method: 'POST' });
+      const res = await fetch(`/post/${postId}/like`, {
+        method: 'POST',
+        headers: { 'X-XSRF-TOKEN': getCsrfToken() }
+      });
       if (res.status === 401) {
         alert('로그인이 필요합니다.');
         location.href = '/user/login';
@@ -70,8 +72,8 @@ if (likeBtn) {
       const data = await res.json();
       document.getElementById('like-count').textContent = data.likeCount;
       likeBtn.classList.toggle('liked', data.liked);
-      const icon = likeBtn.querySelector('.like-icon');
-      if (icon) icon.textContent = data.liked ? '♥' : '♡';
+      const icon = document.getElementById('likeIcon');
+      if (icon) icon.src = data.liked ? '/images/icons/icon-heart-filled.png' : '/images/icons/icon-heart.png';
     } catch (e) {
       console.error(e);
     }
@@ -90,3 +92,4 @@ document.querySelectorAll('textarea[data-autoresize]').forEach(ta => {
     ta.style.height = ta.scrollHeight + 'px';
   });
 });
+

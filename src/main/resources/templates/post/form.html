@@ -242,10 +242,11 @@ const quill = new Quill('#quill-editor', {
   }
 });
 
-/* ── 수정 모드: 기존 내용 로드 ── */
+/* ── 수정 모드: 기존 내용 로드 (innerHTML 직접 삽입 금지 → Delta 변환으로 XSS 차단) ── */
 const existingContent = /*[[${postDto.content}]]*/ '';
 if (existingContent) {
-  quill.root.innerHTML = existingContent;
+  const delta = quill.clipboard.convert(existingContent);
+  quill.setContents(delta, 'silent');
 }
 
 /* ── 공통 업로드 유틸 ── */
@@ -267,6 +268,7 @@ function uploadFile(url, file, onProgress) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', url);
+    xhr.setRequestHeader('X-XSRF-TOKEN', getCsrfToken());
     xhr.upload.onprogress = e => {
       if (e.lengthComputable) onProgress(Math.round(e.loaded / e.total * 100));
     };

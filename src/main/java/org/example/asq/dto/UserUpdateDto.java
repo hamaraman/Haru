@@ -1,5 +1,7 @@
 package org.example.asq.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,6 +11,9 @@ import lombok.Setter;
 public class UserUpdateDto {
     private String name;
     private String phone;
+
+    @NotBlank(message = "닉네임을 입력해주세요.")
+    @Size(min = 2, max = 30, message = "닉네임은 2~30자로 입력해주세요.")
     private String nickname;
     private String email;
     private String profileImage;

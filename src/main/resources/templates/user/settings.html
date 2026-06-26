@@ -144,7 +144,11 @@
     const fd = new FormData();
     fd.append('file', file);
     try {
-      const res = await fetch('/upload/image', { method: 'POST', body: fd });
+      const res = await fetch('/upload/image', {
+        method: 'POST',
+        body: fd,
+        headers: { 'X-XSRF-TOKEN': getCsrfToken() }
+      });
       if (res.status === 401) { alert('로그인이 필요합니다.'); return; }
       const data = await res.json();
       if (data.url) {

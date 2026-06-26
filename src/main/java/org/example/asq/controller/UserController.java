@@ -14,8 +14,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/user")
@@ -32,7 +35,12 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public String register(@ModelAttribute UserDto userDto, RedirectAttributes attrs) {
+    public String register(@Valid @ModelAttribute UserDto userDto, BindingResult bindingResult,
+                           RedirectAttributes attrs, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("error", bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return "user/register";
+        }
         try {
             userService.register(userDto);
             attrs.addFlashAttribute("message", "회원가입이 완료되었습니다. 로그인해주세요.");
@@ -79,10 +87,15 @@ public class UserController {
     }
 
     @PostMapping("/settings")
-    public String updateSettings(@ModelAttribute UserUpdateDto updateDto,
+    public String updateSettings(@Valid @ModelAttribute UserUpdateDto updateDto,
+                                 BindingResult bindingResult,
                                  HttpSession session, RedirectAttributes attrs) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) return "redirect:/user/login";
+        if (bindingResult.hasErrors()) {
+            attrs.addFlashAttribute("error", bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return "redirect:/user/settings";
+        }
         try {
             User updated = userService.updateSettings(loginUser.getId(), updateDto);
             session.setAttribute("loginUser", updated);

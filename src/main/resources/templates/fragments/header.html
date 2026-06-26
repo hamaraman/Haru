@@ -27,14 +27,17 @@
 
     <!-- 중앙 검색바 -->
     <form th:action="@{/posts}" method="get" class="topbar-search">
-      <span class="ico">🔍</span>
+      <img th:src="@{/images/icons/icon-search.png}" class="ico icon-themed" alt="">
       <input type="text" name="keyword" placeholder="하루에서 이야기 검색" autocomplete="off">
     </form>
 
     <div class="topbar-actions">
       <!-- 다크모드 토글 -->
       <button type="button" class="theme-toggle" id="themeToggle"
-              title="다크모드 전환" aria-label="다크모드 전환">🌙</button>
+              title="테마 전환" aria-label="테마 전환">
+        <img th:src="@{/images/icons/icon-moon.png}" class="icon-moon icon-themed" alt="">
+        <img th:src="@{/images/icons/icon-sun.png}" class="icon-sun icon-themed" alt="">
+      </button>
 
       <!-- 비로그인 -->
       <th:block th:if="${session.loginUser == null}">
@@ -44,7 +47,10 @@
 
       <!-- 로그인 -->
       <th:block th:if="${session.loginUser != null}">
-        <a href="#" class="bell" title="알림">🔔<span class="dot"></span></a>
+        <a href="#" class="bell" title="알림">
+          <img th:src="@{/images/icons/icon-bell.png}" class="icon-themed" alt="">
+          <span class="dot"></span>
+        </a>
 
         <div class="profile-menu" id="profileMenu">
           <button type="button" class="profile-trigger" id="profileTrigger">
@@ -53,7 +59,7 @@
                   th:style="${session.loginUser.profileImage != null} ? 'background-image:url(' + ${session.loginUser.profileImage} + ')' : ''"
                   th:text="${session.loginUser.profileImage == null} ? ${#strings.substring(session.loginUser.nickname,0,1)} : ''"></span>
             <span class="nick" th:text="${session.loginUser.nickname}">닉네임</span>
-            <span class="caret">▾</span>
+            <img th:src="@{/images/icons/icon-chevron-down.png}" class="caret icon-themed" alt="">
           </button>
 
           <div class="dropdown">
@@ -67,9 +73,15 @@
                 <div class="mail" th:text="${session.loginUser.email}">이메일</div>
               </div>
             </div>
-            <a th:href="@{/user/mypage}" class="dropdown-item">👤 마이페이지</a>
-            <a th:href="@{/user/settings}" class="dropdown-item">⚙️ 설정</a>
-            <a th:href="@{/user/logout}" class="dropdown-item danger">🚪 로그아웃</a>
+            <a th:href="@{/user/mypage}" class="dropdown-item">
+              <img th:src="@{/images/icons/icon-user.png}" class="icon-themed" alt=""> 마이페이지
+            </a>
+            <a th:href="@{/user/settings}" class="dropdown-item">
+              <img th:src="@{/images/icons/icon-settings.png}" class="icon-themed" alt=""> 설정
+            </a>
+            <a th:href="@{/user/logout}" class="dropdown-item danger">
+              <img th:src="@{/images/icons/icon-logout.png}" class="icon-themed" alt=""> 로그아웃
+            </a>
           </div>
         </div>
       </th:block>
@@ -80,16 +92,16 @@
 <!-- ═══════════ 좌측 내비 ═══════════ -->
 <aside th:fragment="sidebar(active)" class="sidebar">
   <a th:href="@{/}" class="nav-link" th:classappend="${active == 'home'} ? 'active'">
-    <span class="nico">🏠</span> 홈
+    <img th:src="@{/images/icons/icon-home.png}" class="nico icon-themed" alt=""> 홈
   </a>
   <a th:href="@{/posts(sort='popular')}" class="nav-link" th:classappend="${active == 'popular'} ? 'active'">
-    <span class="nico">🔥</span> 인기 게시글
+    <img th:src="@{/images/icons/icon-flame.png}" class="nico icon-themed" alt=""> 인기 게시글
   </a>
   <a th:href="@{/posts(sort='latest')}" class="nav-link" th:classappend="${active == 'latest'} ? 'active'">
-    <span class="nico">🕒</span> 최신 게시글
+    <img th:src="@{/images/icons/icon-clock.png}" class="nico icon-themed" alt=""> 최신 게시글
   </a>
   <a th:href="@{/user/mypage}" class="nav-link" th:classappend="${active == 'mypage'} ? 'active'">
-    <span class="nico">📊</span> 내 활동
+    <img th:src="@{/images/icons/icon-chart.png}" class="nico icon-themed" alt=""> 내 활동
   </a>
 
   <div class="nav-divider"></div>
@@ -97,31 +109,46 @@
 
   <a th:href="@{/posts(category='')}" class="nav-link"
      th:classappend="${active == 'cat-ALL'} ? 'active'">
-    <span class="nico">📁</span> 전체
+    <img th:src="@{/images/icons/icon-folder.png}" class="nico icon-themed" alt=""> 전체
     <span class="count" th:text="${catCounts != null ? catCounts.getOrDefault('ALL', 0) : 0}">0</span>
   </a>
   <a th:each="cat : ${categories}"
      th:href="@{/posts(category=${cat.name()})}" class="nav-link"
      th:classappend="${active == 'cat-' + cat.name()} ? 'active'">
-    <span class="nico" th:text="${cat.icon}">•</span>
+    <img th:src="@{'/images/icons/icon-' + ${cat.icon} + '.png'}" class="nico icon-themed" alt="">
     <span th:text="${cat.label}">카테고리</span>
     <span class="count" th:text="${catCounts != null ? catCounts.getOrDefault(cat.name(), 0) : 0}">0</span>
   </a>
 
-  <a th:href="@{/post/create}" class="nav-write">✏️ 글쓰기</a>
+  <a th:href="@{/post/create}" class="nav-write">
+    <img th:src="@{/images/icons/icon-pencil-white.png}" class="nico" alt=""> 글쓰기
+  </a>
 </aside>
 
 <!-- ═══════════ 우측 위젯 (홈 전용) ═══════════ -->
 <aside th:fragment="widgets" class="widgets">
   <div class="widget">
-    <div class="widget-title">📢 공지사항</div>
-    <div class="notice-item"><span class="pin">📌</span><span class="nt">하루 커뮤니티 베타 오픈 안내</span></div>
-    <div class="notice-item"><span class="pin">📌</span><span class="nt">건전한 커뮤니티 이용 수칙</span></div>
-    <div class="notice-item"><span class="pin">📌</span><span class="nt">이미지·동영상 업로드 가이드</span></div>
+    <div class="widget-title">
+      <img th:src="@{/images/icons/icon-notice.png}" class="icon-themed" alt=""> 공지사항
+    </div>
+    <div class="notice-item">
+      <span class="pin"><img th:src="@{/images/icons/icon-pin.png}" class="icon-themed" alt=""></span>
+      <span class="nt">하루 커뮤니티 베타 오픈 안내</span>
+    </div>
+    <div class="notice-item">
+      <span class="pin"><img th:src="@{/images/icons/icon-pin.png}" class="icon-themed" alt=""></span>
+      <span class="nt">건전한 커뮤니티 이용 수칙</span>
+    </div>
+    <div class="notice-item">
+      <span class="pin"><img th:src="@{/images/icons/icon-pin.png}" class="icon-themed" alt=""></span>
+      <span class="nt">이미지·동영상 업로드 가이드</span>
+    </div>
   </div>
 
   <div class="widget">
-    <div class="widget-title">🏷️ 실시간 인기 태그</div>
+    <div class="widget-title">
+      <img th:src="@{/images/icons/icon-tag.png}" class="icon-themed" alt=""> 실시간 인기 태그
+    </div>
     <div class="tag-cloud">
       <a th:href="@{/posts(keyword='Spring')}" class="tag"># Spring</a>
       <a th:href="@{/posts(keyword='Java')}" class="tag"># Java</a>
@@ -133,7 +160,9 @@
   </div>
 
   <div class="widget">
-    <div class="widget-title">🟢 온라인 멤버</div>
+    <div class="widget-title">
+      <img th:src="@{/images/icons/icon-group.png}" class="icon-themed" alt=""> 온라인 멤버
+    </div>
     <div class="online-item"><span class="avatar avatar-sm" data-avatar="봄날">봄</span><span class="nm">봄날</span><span class="status-dot online" style="margin-left:auto"></span></div>
     <div class="online-item"><span class="avatar avatar-sm" data-avatar="여름이">여</span><span class="nm">여름이</span><span class="status-dot online" style="margin-left:auto"></span></div>
     <div class="online-item"><span class="avatar avatar-sm" data-avatar="운영자">운</span><span class="nm">운영자</span><span class="status-dot away" style="margin-left:auto"></span></div>

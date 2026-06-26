@@ -1,10 +1,10 @@
 package org.example.asq.domain;
 
 public enum Category {
-    FREE("자유", "💬"),
-    QUESTION("질문", "❓"),
-    INFO("정보", "💡"),
-    REVIEW("후기", "⭐");
+    FREE("자유", "chat"),
+    QUESTION("질문", "help"),
+    INFO("정보", "lightbulb"),
+    REVIEW("후기", "star");
 
     private final String label;
     private final String icon;
