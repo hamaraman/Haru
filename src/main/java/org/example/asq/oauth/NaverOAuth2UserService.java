@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -37,26 +38,12 @@ public class NaverOAuth2UserService implements OAuth2UserService<OAuth2UserReque
                 (Map<String, Object>) oAuth2User.getAttributes().get("response");
 
         String socialId = String.valueOf(naverResponse.get("id"));
-        String email = naverResponse.get("email") != null
+        String email    = naverResponse.get("email") != null
                 ? String.valueOf(naverResponse.get("email"))
                 : socialId + "@naver.placeholder";
         String nickname = naverNickname(naverResponse, socialId);
 
-        User user = userRepository.findBySocialId(socialId).orElseGet(() ->
-            // 같은 이메일로 가입한 로컬 계정이 있으면 연동, 없으면 신규 생성
-            userRepository.findByEmail(email).map(existing -> {
-                existing.setSocialId(socialId);
-                return userRepository.save(existing);
-            }).orElseGet(() -> {
-                User nu = new User();
-                nu.setEmail(email);
-                nu.setNickname(nickname);
-                nu.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
-                nu.setProvider("naver");
-                nu.setSocialId(socialId);
-                return userRepository.save(nu);
-            })
-        );
+        User user = resolveUser(socialId, email, nickname);
 
         Map<String, Object> attributes = new HashMap<>(naverResponse);
         attributes.put("dbUserId", user.getId());
@@ -68,7 +55,36 @@ public class NaverOAuth2UserService implements OAuth2UserService<OAuth2UserReque
         );
     }
 
-    /** 네이버 닉네임 → 없으면 실명 대신 'naver_XXXXXX' 형태 */
+    private User resolveUser(String socialId, String email, String nickname) {
+        // 1) 같은 이메일 계정 우선 조회 → 연동
+        if (!email.endsWith("@naver.placeholder")) {
+            Optional<User> byEmail = userRepository.findByEmail(email);
+            if (byEmail.isPresent()) {
+                User existing = byEmail.get();
+                if (existing.getSocialId() == null) {
+                    existing.setSocialId(socialId);
+                    userRepository.save(existing);
+                }
+                return existing;
+            }
+        }
+
+        // 2) socialId로 기존 네이버 계정 조회
+        Optional<User> bySocial = userRepository.findBySocialId(socialId);
+        if (bySocial.isPresent()) {
+            return bySocial.get();
+        }
+
+        // 3) 신규 네이버 계정 생성
+        User nu = new User();
+        nu.setEmail(email);
+        nu.setNickname(nickname);
+        nu.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+        nu.setProvider("naver");
+        nu.setSocialId(socialId);
+        return userRepository.save(nu);
+    }
+
     private String naverNickname(Map<String, Object> response, String socialId) {
         if (response.get("nickname") != null) {
             String nick = String.valueOf(response.get("nickname")).trim();
