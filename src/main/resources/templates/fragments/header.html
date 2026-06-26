@@ -52,9 +52,9 @@
 
       <!-- 로그인 -->
       <th:block th:if="${session.loginUser != null}">
-        <a href="#" class="bell" title="알림">
+        <a th:href="@{/notifications}" class="bell" title="알림">
           <img th:src="@{/images/icons/icon-bell.png}" class="icon-themed" alt="">
-          <span class="dot"></span>
+          <span class="notif-badge" th:if="${unreadCount > 0}" th:text="${unreadCount > 99 ? '99+' : unreadCount}"></span>
         </a>
 
         <div class="profile-menu" id="profileMenu">
@@ -83,6 +83,10 @@
             </a>
             <a th:href="@{/user/settings}" class="dropdown-item">
               <img th:src="@{/images/icons/icon-settings.png}" class="icon-themed" alt=""> 설정
+            </a>
+            <a th:if="${session.loginUser != null and session.loginUser.email == 'admin@haru.kr'}"
+               th:href="@{/admin}" class="dropdown-item">
+              <img th:src="@{/images/icons/icon-settings.png}" class="icon-themed" alt=""> 관리자
             </a>
             <a th:href="@{/user/logout}" class="dropdown-item danger">
               <img th:src="@{/images/icons/icon-logout.png}" class="icon-themed" alt=""> 로그아웃

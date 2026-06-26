@@ -42,37 +42,72 @@
       </div>
     </div>
 
-    <!-- 내가 작성한 글 -->
-    <div class="page-header">
-      <h2 class="page-title" style="font-size:1.15rem;">내가 작성한 글</h2>
+    <!-- 탭 네비 -->
+    <div class="tab-nav">
+      <a th:href="@{/user/mypage(tab='posts')}"
+         th:classappend="${tab == 'posts' or tab == null} ? 'active'"
+         class="tab-btn">내가 작성한 글</a>
+      <a th:href="@{/user/mypage(tab='bookmarks')}"
+         th:classappend="${tab == 'bookmarks'} ? 'active'"
+         class="tab-btn">저장한 글</a>
     </div>
 
-    <div class="feed-card" th:if="${!posts.content.isEmpty()}">
-      <div class="post-list">
-        <div th:each="post : ${posts.content}" class="post-item" th:data-href="@{/post/{id}(id=${post.id})}">
-          <span th:class="'chip chip-' + ${post.category.name()}" th:text="${post.category.label}">카테고리</span>
-          <span class="post-title" th:text="${post.title}">제목</span>
-          <div class="post-meta">
-            <span class="ico like"><img th:src="@{/images/icons/icon-heart.png}" class="icon-stat icon-danger" alt=""> <span th:text="${post.likeCount}">0</span></span>
-            <span class="ico"><img th:src="@{/images/icons/icon-eye.png}" class="icon-stat icon-themed" alt=""> <span th:text="${post.viewCount}">0</span></span>
-            <span class="ico" th:text="${#temporals.format(post.createdAt,'MM.dd')}">날짜</span>
+    <!-- 내가 작성한 글 탭 -->
+    <div th:if="${tab == 'posts' or tab == null}">
+      <div class="feed-card" th:if="${!posts.content.isEmpty()}">
+        <div class="post-list">
+          <div th:each="post : ${posts.content}" class="post-item" th:data-href="@{/post/{id}(id=${post.id})}">
+            <span th:class="'chip chip-' + ${post.category.name()}" th:text="${post.category.label}">카테고리</span>
+            <span class="post-title" th:text="${post.title}">제목</span>
+            <div class="post-meta">
+              <span class="ico like"><img th:src="@{/images/icons/icon-heart.png}" class="icon-stat icon-danger" alt=""> <span th:text="${post.likeCount}">0</span></span>
+              <span class="ico"><img th:src="@{/images/icons/icon-eye.png}" class="icon-stat icon-themed" alt=""> <span th:text="${post.viewCount}">0</span></span>
+              <span class="ico" th:text="${#temporals.format(post.createdAt,'MM.dd')}">날짜</span>
+            </div>
           </div>
         </div>
       </div>
+      <div th:if="${posts.content.isEmpty()}" class="empty">아직 작성한 글이 없습니다.</div>
+
+      <nav class="pagination" th:if="${posts.totalPages > 1}">
+        <a th:href="@{/user/mypage(page=${currentPage-1},tab='posts')}" class="page-btn"
+           th:classappend="${currentPage==1} ? 'disabled'">‹</a>
+        <a th:each="i : ${#numbers.sequence(1, posts.totalPages)}"
+           th:href="@{/user/mypage(page=${i},tab='posts')}" th:text="${i}" class="page-btn"
+           th:classappend="${i==currentPage} ? 'active'">1</a>
+        <a th:href="@{/user/mypage(page=${currentPage+1},tab='posts')}" class="page-btn"
+           th:classappend="${currentPage==posts.totalPages} ? 'disabled'">›</a>
+      </nav>
     </div>
 
-    <div th:if="${posts.content.isEmpty()}" class="empty">아직 작성한 글이 없습니다.</div>
+    <!-- 저장한 글 탭 -->
+    <div th:if="${tab == 'bookmarks'}">
+      <div class="feed-card" th:if="${bookmarks != null and !bookmarks.content.isEmpty()}">
+        <div class="post-list">
+          <div th:each="bm : ${bookmarks.content}" class="post-item"
+               th:data-href="@{/post/{id}(id=${bm.post.id})}">
+            <span th:class="'chip chip-' + ${bm.post.category.name()}" th:text="${bm.post.category.label}">카테고리</span>
+            <span class="post-title" th:text="${bm.post.title}">제목</span>
+            <div class="post-meta">
+              <span class="ico like"><img th:src="@{/images/icons/icon-heart.png}" class="icon-stat icon-danger" alt=""> <span th:text="${bm.post.likeCount}">0</span></span>
+              <span class="ico"><img th:src="@{/images/icons/icon-eye.png}" class="icon-stat icon-themed" alt=""> <span th:text="${bm.post.viewCount}">0</span></span>
+              <span class="ico" th:text="${#temporals.format(bm.createdAt,'MM.dd')}">날짜</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div th:if="${bookmarks == null or bookmarks.content.isEmpty()}" class="empty">저장한 글이 없습니다.</div>
 
-    <!-- 페이지네이션 -->
-    <nav class="pagination" th:if="${posts.totalPages > 1}">
-      <a th:href="@{/user/mypage(page=${currentPage-1})}" class="page-btn"
-         th:classappend="${currentPage==1} ? 'disabled'">‹</a>
-      <a th:each="i : ${#numbers.sequence(1, posts.totalPages)}"
-         th:href="@{/user/mypage(page=${i})}" th:text="${i}" class="page-btn"
-         th:classappend="${i==currentPage} ? 'active'">1</a>
-      <a th:href="@{/user/mypage(page=${currentPage+1})}" class="page-btn"
-         th:classappend="${currentPage==posts.totalPages} ? 'disabled'">›</a>
-    </nav>
+      <nav class="pagination" th:if="${bookmarks != null and bookmarks.totalPages > 1}">
+        <a th:href="@{/user/mypage(page=${currentPage-1},tab='bookmarks')}" class="page-btn"
+           th:classappend="${currentPage==1} ? 'disabled'">‹</a>
+        <a th:each="i : ${#numbers.sequence(1, bookmarks.totalPages)}"
+           th:href="@{/user/mypage(page=${i},tab='bookmarks')}" th:text="${i}" class="page-btn"
+           th:classappend="${i==currentPage} ? 'active'">1</a>
+        <a th:href="@{/user/mypage(page=${currentPage+1},tab='bookmarks')}" class="page-btn"
+           th:classappend="${currentPage==bookmarks.totalPages} ? 'disabled'">›</a>
+      </nav>
+    </div>
 
   </main>
 </div>

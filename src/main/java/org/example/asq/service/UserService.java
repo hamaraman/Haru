@@ -141,6 +141,13 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional
+    public void deleteById(Long userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        userRepository.deleteById(userId);
+    }
+
     @Transactional(readOnly = true)
     public MemberStatsDto getStats(Long userId) {
         long postCount    = postRepository.countByUserId(userId);

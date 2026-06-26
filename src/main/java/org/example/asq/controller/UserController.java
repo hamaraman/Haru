@@ -7,6 +7,7 @@ import org.example.asq.domain.User;
 import org.example.asq.dto.MemberStatsDto;
 import org.example.asq.dto.UserDto;
 import org.example.asq.dto.UserUpdateDto;
+import org.example.asq.service.BookmarkService;
 import org.example.asq.service.PostService;
 import org.example.asq.service.UserService;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,7 @@ public class UserController {
 
     private final UserService userService;
     private final PostService postService;
+    private final BookmarkService bookmarkService;
 
     @GetMapping("/register")
     public String registerForm(Model model) {
@@ -114,7 +116,8 @@ public class UserController {
 
     @GetMapping("/mypage")
     public String mypage(HttpSession session, Model model,
-                         @RequestParam(defaultValue = "1") int page) {
+                         @RequestParam(defaultValue = "1") int page,
+                         @RequestParam(defaultValue = "posts") String tab) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) return "redirect:/user/login";
 
@@ -127,6 +130,13 @@ public class UserController {
         model.addAttribute("stats", stats);
         model.addAttribute("posts", posts);
         model.addAttribute("currentPage", page);
+        model.addAttribute("tab", tab);
+
+        if ("bookmarks".equals(tab)) {
+            model.addAttribute("bookmarks", bookmarkService.findByUserId(loginUser.getId(),
+                    PageRequest.of(page - 1, 8)));
+        }
+
         return "user/mypage";
     }
 }
