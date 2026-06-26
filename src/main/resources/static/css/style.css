@@ -853,6 +853,97 @@ textarea, input, select { font-family: inherit; }
 .mobile-search-submit:hover { border-color: var(--accent); }
 .mobile-search-submit img { width: 18px; height: 18px; object-fit: contain; }
 
+/* ── Bookmark button ── */
+.btn-icon.bookmarked img { filter: invert(39%) sepia(95%) saturate(700%) hue-rotate(230deg); }
+[data-theme="dark"] .btn-icon.bookmarked img { filter: invert(70%) sepia(80%) saturate(500%) hue-rotate(200deg); }
+
+/* ── Lightbox ── */
+.lightbox-overlay {
+  display: none; position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,.88); align-items: center; justify-content: center;
+}
+.lightbox-overlay.open { display: flex; }
+.lightbox-overlay img {
+  max-width: 90vw; max-height: 90vh; object-fit: contain;
+  border-radius: 12px; box-shadow: 0 8px 40px rgba(0,0,0,.6);
+}
+.lightbox-close {
+  position: absolute; top: 18px; right: 22px;
+  font-size: 2rem; color: #fff; cursor: pointer; line-height: 1;
+  background: none; border: none; padding: 4px 10px;
+}
+
+/* ── Reply comments ── */
+.comment-replies { padding-left: 48px; }
+.comment-reply-item {
+  display: flex; gap: 12px; padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+.reply-btn {
+  background: none; border: none; padding: 0; font-size: .8rem;
+  color: var(--text-sub); cursor: pointer; margin-top: 4px;
+}
+.reply-btn:hover { color: var(--accent); }
+.reply-form { margin-top: 10px; display: none; }
+.reply-form.open { display: flex; gap: 8px; }
+.reply-form textarea {
+  flex: 1; border: 1px solid var(--border); border-radius: 10px;
+  padding: 9px 13px; font-size: .88rem; resize: none; outline: none;
+  transition: border-color .15s; min-height: 50px;
+  background: var(--bg); color: var(--text);
+}
+.reply-form textarea:focus { border-color: var(--accent); }
+
+/* ── Notification list ── */
+.notif-item {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 16px 0; border-bottom: 1px solid var(--border);
+}
+.notif-item:last-child { border-bottom: none; }
+.notif-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent); flex-shrink: 0; margin-top: 6px;
+}
+.notif-dot.read { background: var(--border); }
+.notif-body { flex: 1; min-width: 0; }
+.notif-msg { font-size: .9rem; }
+.notif-time { font-size: .78rem; color: var(--text-sub); margin-top: 3px; }
+.notif-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; height: 18px; padding: 0 5px;
+  background: var(--danger); color: #fff;
+  border-radius: 9px; font-size: .68rem; font-weight: 800;
+  position: absolute; top: -4px; right: -6px;
+}
+.bell { position: relative; }
+
+/* ── Admin ── */
+.admin-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
+.stat-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-card); padding: 22px 20px; text-align: center;
+}
+.stat-card .num { font-size: 2rem; font-weight: 800; color: var(--accent); }
+.stat-card .lbl { font-size: .82rem; color: var(--text-sub); margin-top: 4px; }
+.admin-table { width: 100%; border-collapse: collapse; }
+.admin-table th, .admin-table td {
+  padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--border); font-size: .9rem;
+}
+.admin-table th { font-size: .78rem; font-weight: 800; color: var(--text-sub); text-transform: uppercase; }
+
+/* ── Tab nav (mypage bookmarks) ── */
+.tab-nav { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+.tab-btn {
+  display: inline-block;
+  padding: 10px 18px; font-size: .9rem; font-weight: 700;
+  background: none; border: none; border-bottom: 2px solid transparent;
+  color: var(--text-sub); cursor: pointer; transition: all .15s; margin-bottom: -1px;
+  text-decoration: none;
+}
+.tab-btn.active { border-bottom-color: var(--accent); color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
 @media (max-width: 760px) {
   .topbar-search { display: none; }
   .mobile-search-btn { display: inline-flex; }

@@ -16,11 +16,12 @@ public class CommentController {
 
     @PostMapping("/post/{postId}/comment")
     public String create(@PathVariable Long postId, @RequestParam String content,
+                         @RequestParam(required = false) Long parentId,
                          HttpSession session, RedirectAttributes attrs) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) return "redirect:/user/login";
         try {
-            commentService.create(postId, content, loginUser.getId());
+            commentService.create(postId, content, loginUser.getId(), parentId);
         } catch (IllegalArgumentException e) {
             attrs.addFlashAttribute("error", e.getMessage());
         }

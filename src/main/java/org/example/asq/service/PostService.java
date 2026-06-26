@@ -28,6 +28,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final PostLikeRepository postLikeRepository;
     private final PostMapper postMapper;
+    private final NotificationService notificationService;
 
     private static final int PAGE_SIZE = 8;
 
@@ -100,6 +101,12 @@ public class PostService {
             postLikeRepository.save(like);
             post.setLikeCount(post.getLikeCount() + 1);
             liked = true;
+            if (!post.getUser().getId().equals(userId)) {
+                String title = post.getTitle().length() > 20
+                        ? post.getTitle().substring(0, 20) + "…" : post.getTitle();
+                notificationService.notify(post.getUser(), "LIKE",
+                        user.getNickname() + "님이 '" + title + "'에 좋아요를 눌렀습니다.", postId);
+            }
         }
         postRepository.save(post);
 

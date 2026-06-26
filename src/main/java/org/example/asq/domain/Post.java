@@ -4,13 +4,20 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "post")
+@Table(name = "post", indexes = {
+    @Index(name = "idx_post_created_at", columnList = "created_at"),
+    @Index(name = "idx_post_like_count",  columnList = "like_count"),
+    @Index(name = "idx_post_view_count",  columnList = "view_count"),
+    @Index(name = "idx_post_category",    columnList = "category"),
+    @Index(name = "idx_post_member",      columnList = "member_id")
+})
 @Getter @Setter
 @NoArgsConstructor
 public class Post {

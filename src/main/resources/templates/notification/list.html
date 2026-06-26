@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/header :: head('알림')}"></th:block>
+</head>
+<body>
+<th:block th:replace="~{fragments/header :: topbar}"></th:block>
+
+<div class="layout">
+  <th:block th:replace="~{fragments/header :: sidebar('notifications')}"></th:block>
+
+  <main class="main">
+    <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+      <h1 class="page-title">알림</h1>
+      <form th:action="@{/notifications/read-all}" method="post">
+        <button type="submit" class="btn btn-ghost btn-sm">모두 읽음</button>
+      </form>
+    </div>
+
+    <div class="detail-card">
+      <div th:if="${notifications.content.isEmpty()}" class="empty" style="padding:40px 0;">
+        알림이 없습니다.
+      </div>
+
+      <div th:each="n : ${notifications.content}" class="notif-item">
+        <span class="notif-dot" th:classappend="${n.read} ? 'read'"></span>
+        <div class="notif-body">
+          <div class="notif-msg">
+            <a th:if="${n.postId != null}" th:href="@{/post/{id}(id=${n.postId})}"
+               style="color:var(--text);text-decoration:none;" th:text="${n.message}">메시지</a>
+            <span th:if="${n.postId == null}" th:text="${n.message}">메시지</span>
+          </div>
+          <div class="notif-time" th:text="${#temporals.format(n.createdAt,'yyyy.MM.dd HH:mm')}">날짜</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 페이지네이션 -->
+    <nav class="pagination" th:if="${notifications.totalPages > 1}">
+      <a th:href="@{/notifications(page=${currentPage-1})}" class="page-btn"
+         th:classappend="${currentPage==1} ? 'disabled'">‹</a>
+      <a th:each="i : ${#numbers.sequence(1, notifications.totalPages)}"
+         th:href="@{/notifications(page=${i})}" th:text="${i}" class="page-btn"
+         th:classappend="${i==currentPage} ? 'active'">1</a>
+      <a th:href="@{/notifications(page=${currentPage+1})}" class="page-btn"
+         th:classappend="${currentPage==notifications.totalPages} ? 'disabled'">›</a>
+    </nav>
+  </main>
+</div>
+
+<th:block th:replace="~{fragments/header :: footer}"></th:block>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

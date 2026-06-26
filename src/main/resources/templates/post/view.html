@@ -26,7 +26,7 @@
     }
     .post-content code { background: #f0edfb; padding: 2px 5px; border-radius: 4px; font-size: .88em; }
     .post-content pre code { background: none; padding: 0; }
-    .post-content img { max-width: 100%; height: auto; border-radius: 10px; margin: 10px 0; display: block; }
+    .post-content img { max-width: 100%; height: auto; border-radius: 10px; margin: 10px 0; display: block; cursor: zoom-in; }
     .post-content iframe { max-width: 100%; width: 100%; aspect-ratio: 16/9; border-radius: 10px; margin: 10px 0; border: none; }
     .post-content video { max-width: 100%; border-radius: 10px; margin: 10px 0; }
     .post-content a { color: var(--accent); text-decoration: underline; }
@@ -37,6 +37,12 @@
 </head>
 <body>
 <th:block th:replace="~{fragments/header :: topbar}"></th:block>
+
+<!-- 이미지 라이트박스 -->
+<div class="lightbox-overlay" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightboxImg" src="" alt="">
+</div>
 
 <div class="layout">
   <th:block th:replace="~{fragments/header :: sidebar('cat-' + ${post.category.name()})}"></th:block>
@@ -71,6 +77,15 @@
                class="like-icon" id="likeIcon" alt="">
           좋아요 <span id="like-count" th:text="${post.likeCount}">0</span>
         </button>
+
+        <th:block th:if="${session.loginUser != null}">
+          <button id="bookmark-btn" class="btn-icon" th:classappend="${bookmarked} ? 'bookmarked'"
+                  th:data-post-id="${post.id}">
+            <img th:src="@{/images/icons/icon-star.png}" class="icon-themed" alt="">
+            <span id="bookmark-label" th:text="${bookmarked} ? '저장됨' : '저장'">저장</span>
+          </button>
+        </th:block>
+
         <div class="spacer"></div>
         <a th:href="@{/posts}" class="btn btn-ghost btn-sm">목록</a>
         <th:block th:if="${session.loginUser != null and session.loginUser.id == post.user.id}">
@@ -92,10 +107,44 @@
               th:data-avatar="${comment.user.nickname}"
               th:style="${comment.user.profileImage != null} ? 'background-image:url(' + ${comment.user.profileImage} + ')' : ''"
               th:text="${comment.user.profileImage == null} ? ${#strings.substring(comment.user.nickname,0,1)} : ''"></span>
-        <div class="comment-body">
+        <div class="comment-body" style="flex:1;">
           <span class="comment-author" th:text="${comment.user.nickname}">작성자</span>
           <span class="comment-time" th:text="${#temporals.format(comment.createdAt,'yyyy.MM.dd HH:mm')}">날짜</span>
           <p class="comment-text" th:text="${comment.content}">내용</p>
+
+          <!-- 답글 달기 버튼 -->
+          <th:block th:if="${session.loginUser != null}">
+            <button type="button" class="reply-btn"
+                    th:onclick="'toggleReplyForm(' + ${comment.id} + ')'">↩ 답글</button>
+            <div class="reply-form" th:id="'reply-form-' + ${comment.id}">
+              <form th:action="@{/post/{id}/comment(id=${post.id})}" method="post"
+                    style="display:flex;gap:8px;flex:1;">
+                <input type="hidden" name="parentId" th:value="${comment.id}">
+                <textarea name="content" rows="2" placeholder="답글을 입력하세요" required></textarea>
+                <button type="submit" class="btn btn-primary btn-sm">등록</button>
+              </form>
+            </div>
+          </th:block>
+
+          <!-- 대댓글 목록 -->
+          <div class="comment-replies" th:if="${!#lists.isEmpty(comment.replies)}">
+            <div th:each="reply : ${comment.replies}" class="comment-reply-item">
+              <span class="avatar avatar-sm"
+                    th:data-avatar="${reply.user.nickname}"
+                    th:style="${reply.user.profileImage != null} ? 'background-image:url(' + ${reply.user.profileImage} + ')' : ''"
+                    th:text="${reply.user.profileImage == null} ? ${#strings.substring(reply.user.nickname,0,1)} : ''"></span>
+              <div class="comment-body" style="flex:1;">
+                <span class="comment-author" th:text="${reply.user.nickname}">작성자</span>
+                <span class="comment-time" th:text="${#temporals.format(reply.createdAt,'yyyy.MM.dd HH:mm')}">날짜</span>
+                <p class="comment-text" th:text="${reply.content}">내용</p>
+              </div>
+              <form th:if="${session.loginUser != null and session.loginUser.id == reply.user.id}"
+                    th:action="@{/comment/{id}/delete(id=${reply.id})}" method="post">
+                <input type="hidden" name="postId" th:value="${post.id}">
+                <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+              </form>
+            </div>
+          </div>
         </div>
         <form th:if="${session.loginUser != null and session.loginUser.id == comment.user.id}"
               th:action="@{/comment/{id}/delete(id=${comment.id})}" method="post">
@@ -122,5 +171,60 @@
 
 <th:block th:replace="~{fragments/header :: footer}"></th:block>
 <script th:src="@{/js/main.js}"></script>
+<script th:inline="javascript">
+  // ── 좋아요 ──
+  const likeBtn = document.getElementById('like-btn');
+  const postId = /*[[${post.id}]]*/ null;
+  if (likeBtn) {
+    likeBtn.addEventListener('click', async () => {
+      const res = await fetch('/post/' + postId + '/like', {
+        method: 'POST',
+        headers: { 'X-XSRF-TOKEN': getCsrfToken() }
+      });
+      if (res.status === 401) { location.href = '/user/login'; return; }
+      const data = await res.json();
+      document.getElementById('like-count').textContent = data.likeCount;
+      const icon = document.getElementById('likeIcon');
+      likeBtn.classList.toggle('liked', data.liked);
+      icon.src = data.liked ? '/images/icons/icon-heart-filled.png' : '/images/icons/icon-heart.png';
+    });
+  }
+
+  // ── 북마크 ──
+  const bookmarkBtn = document.getElementById('bookmark-btn');
+  if (bookmarkBtn) {
+    bookmarkBtn.addEventListener('click', async () => {
+      const res = await fetch('/post/' + postId + '/bookmark', {
+        method: 'POST',
+        headers: { 'X-XSRF-TOKEN': getCsrfToken() }
+      });
+      if (res.status === 401) { location.href = '/user/login'; return; }
+      const data = await res.json();
+      bookmarkBtn.classList.toggle('bookmarked', data.bookmarked);
+      document.getElementById('bookmark-label').textContent = data.bookmarked ? '저장됨' : '저장';
+    });
+  }
+
+  // ── 라이트박스 ──
+  document.querySelectorAll('.post-content img').forEach(img => {
+    img.addEventListener('click', () => {
+      document.getElementById('lightboxImg').src = img.src;
+      document.getElementById('lightbox').classList.add('open');
+    });
+  });
+  function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+  // ── 답글 폼 토글 ──
+  function toggleReplyForm(commentId) {
+    const form = document.getElementById('reply-form-' + commentId);
+    if (form) form.classList.toggle('open');
+  }
+
+  function getCsrfToken() {
+    const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : '';
+  }
+</script>
 </body>
 </html>

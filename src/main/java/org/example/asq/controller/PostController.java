@@ -7,6 +7,7 @@ import org.example.asq.domain.Comment;
 import org.example.asq.domain.Post;
 import org.example.asq.domain.User;
 import org.example.asq.dto.PostDto;
+import org.example.asq.service.BookmarkService;
 import org.example.asq.service.CommentService;
 import org.example.asq.service.PostService;
 import org.example.asq.util.HtmlSanitizer;
@@ -30,6 +31,7 @@ public class PostController {
 
     private final PostService postService;
     private final CommentService commentService;
+    private final BookmarkService bookmarkService;
 
     /** 홈 대시보드: 히어로 + 인기 게시글 + 최신 게시글 + 우측 위젯 */
     @GetMapping("/")
@@ -104,11 +106,13 @@ public class PostController {
         List<Comment> comments = commentService.findByPostId(id);
         User loginUser = (User) session.getAttribute("loginUser");
         boolean liked = loginUser != null && postService.isLikedByUser(id, loginUser.getId());
+        boolean bookmarked = loginUser != null && bookmarkService.isBookmarked(id, loginUser.getId());
 
         model.addAttribute("post", post);
         model.addAttribute("safeContent", HtmlSanitizer.sanitize(post.getContent()));
         model.addAttribute("comments", comments);
         model.addAttribute("liked", liked);
+        model.addAttribute("bookmarked", bookmarked);
         return "post/view";
     }
 

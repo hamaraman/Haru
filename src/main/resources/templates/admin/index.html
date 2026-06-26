@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/header :: head('관리자')}"></th:block>
+</head>
+<body>
+<th:block th:replace="~{fragments/header :: topbar}"></th:block>
+
+<div class="layout">
+  <th:block th:replace="~{fragments/header :: sidebar('admin')}"></th:block>
+
+  <main class="main">
+    <div class="page-header" style="margin-bottom:24px;">
+      <h1 class="page-title">관리자 대시보드</h1>
+    </div>
+
+    <div class="admin-stats">
+      <div class="stat-card">
+        <div class="num" th:text="${userCount}">0</div>
+        <div class="lbl">전체 회원</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" th:text="${postCount}">0</div>
+        <div class="lbl">전체 게시글</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" th:text="${commentCount}">0</div>
+        <div class="lbl">전체 댓글</div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <a th:href="@{/admin/users}" class="btn btn-primary">회원 관리</a>
+        <a th:href="@{/posts}" class="btn btn-ghost">게시글 목록</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<th:block th:replace="~{fragments/header :: footer}"></th:block>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>
