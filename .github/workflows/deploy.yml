@@ -1,0 +1,24 @@
+name: Deploy to Lightsail
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 43.202.60.26
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /tmp/haru
+            git pull origin main
+            ./gradlew build -x test -q
+            cp build/libs/asq-0.0.1-SNAPSHOT.jar /home/ubuntu/asq.jar
+            sudo systemctl restart asq
+            echo "배포 완료"
