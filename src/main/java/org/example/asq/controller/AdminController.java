@@ -30,7 +30,7 @@ public class AdminController {
 
     private boolean isAdmin(HttpSession session) {
         User u = (User) session.getAttribute("loginUser");
-        return u != null && "admin@haru.kr".equals(u.getEmail());
+        return u != null && u.isAdmin();
     }
 
     @GetMapping("")

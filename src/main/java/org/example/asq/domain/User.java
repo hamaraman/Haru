@@ -41,6 +41,10 @@ public class User {
     @Column(name = "social_id", length = 100)
     private String socialId;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20, columnDefinition = "VARCHAR(20) NOT NULL DEFAULT 'USER'")
+    private Role role = Role.USER;
+
     @Column(name = "noti_comment", nullable = false)
     private boolean notiComment = true;
 
@@ -56,5 +60,13 @@ public class User {
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
+        if (this.role == null) {
+            this.role = Role.USER;
+        }
+    }
+
+    /** 관리자 권한 여부 — 이메일이 아니라 역할로 판별한다. */
+    public boolean isAdmin() {
+        return this.role == Role.ADMIN;
     }
 }

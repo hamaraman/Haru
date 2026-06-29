@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS member (
     profile_image VARCHAR(255),
     provider      VARCHAR(20)  NOT NULL DEFAULT 'local',
     social_id     VARCHAR(100),
+    role          VARCHAR(20)  NOT NULL DEFAULT 'USER',
     noti_comment  TINYINT(1)   NOT NULL DEFAULT 1,
     noti_like     TINYINT(1)   NOT NULL DEFAULT 1,
     noti_notice   TINYINT(1)   NOT NULL DEFAULT 1,

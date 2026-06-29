@@ -84,7 +84,7 @@
             <a th:href="@{/user/settings}" class="dropdown-item">
               <img th:src="@{/images/icons/icon-settings.png}" class="icon-themed" alt=""> 설정
             </a>
-            <a th:if="${session.loginUser != null and session.loginUser.email == 'admin@haru.kr'}"
+            <a th:if="${session.loginUser != null and session.loginUser.admin}"
                th:href="@{/admin}" class="dropdown-item">
               <img th:src="@{/images/icons/icon-settings.png}" class="icon-themed" alt=""> 관리자
             </a>

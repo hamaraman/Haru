@@ -23,14 +23,12 @@ INSERT INTO comment (post_id, member_id, content) VALUES
 (2, 1, 'Spring Boot 4는 Spring Framework 6.2 기반입니다.');
 
 -- ============================================================
--- 관리자 계정 만들기 (admin@haru.kr 이메일이 곧 관리자 권한임 — AdminController.isAdmin 참고)
+-- 관리자 권한 부여 (role = 'ADMIN' 인 회원이 관리자 — AdminController.isAdmin 참고)
 --
--- 1) 강한 비밀번호의 BCrypt 해시를 직접 생성하세요. 예:
---      - 온라인 BCrypt 생성기 대신, 앱의 PasswordEncoder 로 생성하는 것을 권장
---      - 또는: new BCryptPasswordEncoder().encode("강한비밀번호")
--- 2) 아래 주석을 풀고 <YOUR_BCRYPT_HASH> 자리에 넣어 한 번만 실행하세요.
---    절대 이 파일에 실제 해시를 커밋하지 마세요.
+-- 관리자는 더 이상 고정 계정으로 시드하지 않습니다.
+-- 1) 평소처럼 회원가입으로 본인 계정을 만든 뒤(강한 비밀번호 사용),
+-- 2) 아래 UPDATE 로 해당 계정만 ADMIN 으로 승격하세요. 이메일은 본인 것으로 교체.
+--    승격 후에는 다시 로그인해야 세션에 권한이 반영됩니다.
 --
--- INSERT INTO member (email, password, nickname, provider)
--- VALUES ('admin@haru.kr', '<YOUR_BCRYPT_HASH>', '운영자', 'local');
+-- UPDATE member SET role = 'ADMIN' WHERE email = '<당신의_관리자_이메일>';
 -- ============================================================
