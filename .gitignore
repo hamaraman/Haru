@@ -38,3 +38,9 @@ out/
 
 ### Private Keys ###
 *.pem
+
+### Secrets / Env ###
+.env
+.env.local
+application-local.yml
+application-prod.yml

@@ -3,9 +3,9 @@ spring:
     name: asq
 
   datasource:
-    url: jdbc:mariadb://localhost:3306/asq?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: asq
-    password: ***REMOVED***
+    url: ${DB_URL:jdbc:mariadb://localhost:3306/asq?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
+    username: ${DB_USERNAME:asq}
+    password: ${DB_PASSWORD}
     driver-class-name: org.mariadb.jdbc.Driver
 
   jpa:
@@ -21,8 +21,8 @@ spring:
       client:
         registration:
           naver:
-            client-id: ***REMOVED***
-            client-secret: ***REMOVED***
+            client-id: ${NAVER_CLIENT_ID}
+            client-secret: ${NAVER_CLIENT_SECRET}
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             authorization-grant-type: authorization_code
             scope: name, email, nickname
@@ -38,8 +38,8 @@ spring:
 
   servlet:
     multipart:
-      max-file-size: 1GB
-      max-request-size: 1GB
+      max-file-size: 20MB
+      max-request-size: 20MB
 
 server:
   tomcat:
